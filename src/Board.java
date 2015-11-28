@@ -20,17 +20,13 @@ public class Board {
     public Board(Board B) {
         value = new int[20][20];
         for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 20; j++) {
-                value[i][j] = B.value[i][j];
-            }
+            System.arraycopy(B.value[i], 0, value[i], 0, 20);
         }
     }
 
     public void setBoard(Board B) {
         for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 20; j++) {
-                value[i][j] = B.value[i][j];
-            }
+            System.arraycopy(B.value[i], 0, value[i], 0, 20);
         }
     }
 
