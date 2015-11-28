@@ -16,19 +16,19 @@ import java.util.ArrayList;
 public class Room {
     // Atribut
     private String name;
-    //private Board board;
-    //private Player master;
-    //private PlayerList players;
+    private Board board;
+    private Player master;
+    private ArrayList<Player> players;
     private ArrayList<Integer> playerSymbols;
-    //private Player turn;
+    private Player turn;
     
     // Konstruktor
     public Room() {
-        //board = new Board();
-        //master = new Player();
-        //players = new PlayerList();
+        board = new Board();
+        master = new Player();
+        players = new ArrayList<Player>();
         playerSymbols = new ArrayList<Integer>();
-        //turn = new Player();
+        turn = new Player();
     }
     
     // Getter
@@ -36,61 +36,53 @@ public class Room {
         return name;
     }
     
-//    public Board getBoard() {
-//        return board;
-//    }
+    public Board getBoard() {
+        return board;
+    }
     
-//    public Player getMaster() {
-//        return master;
-//    }
+    public Player getMaster() {
+        return master;
+    }
     
-//    public PlayerList getPlayers() {
-//        return players;
-//    }
-    
-//    public Player getPlayer(int i) {
-//        return players.
-//    }
+    public Player getPlayer(int i) {
+        return players.get(i);
+    }
     
     public int getPlayerSymbol(int i) {
         return playerSymbols.get(i);
     }
     
-//    public Player turn() {
-//        return turn;
-//    }
+    public Player turn() {
+        return turn;
+    }
     
     // Setter
     public void setName(String _name) {
         name = _name;
     }
     
-//    public void setBoard(Board _board) {
-//        board = _board;
-//    }
+    public void setBoard(Board _board) {
+        board = _board;
+    }
     
-//    public void setMaster(Player _master) {
-//        master = _master;
-//    }
+    public void setMaster(Player _master) {
+        master = _master;
+    }
     
-//    public void setPlayers(PlayerList _players) {
-//        players = _players;
-//    }
-    
-//    public void setPlayer(int i, Player player) {
-//        players.
-//    }
+    public void setPlayer(int i, Player player) {
+        players.set(i, player);
+    }
     
     public void setPlayerSymbol(int i, int playerSymbol) {
         playerSymbols.set(i, playerSymbol);
     }
     
-//    public void setTurn(Player _turn) {
-//        turn = _turn;
-//    }
+    public void setTurn(Player _turn) {
+        turn = _turn;
+    }
     
     // Method
-//    public int countPlayers() {
-//        return players.
-//    }
+    public int countPlayers() {
+        return players.
+    }
 }
