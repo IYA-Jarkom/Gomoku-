@@ -1,4 +1,5 @@
 
+
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -29,7 +30,7 @@ public class Player implements Serializable{
     //private int port;
     
     // Konstruktor
-    Player() {
+    public Player() {
         nickName = "Default";
         winNumber = 0;
         loseNumber = 0;
@@ -40,7 +41,11 @@ public class Player implements Serializable{
         }
         port = 8080;*/
     }
-    Player (String _nickName, int _winNumber, int _loseNumber) {
+
+    public Player (String _nickName, int _winNumber, int _loseNumber) {
+
+   
+
         nickName = _nickName;
         winNumber = _winNumber;
         loseNumber = _loseNumber;
