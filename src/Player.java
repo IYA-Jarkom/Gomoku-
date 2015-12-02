@@ -1,4 +1,5 @@
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -18,35 +19,33 @@ import java.util.logging.Logger;
  *  Kelas untuk menyimpan pemain dan data yang dimilikinya
  * 
  */
-public class Player {
+public class Player implements Serializable{
     // Atribut
     private String nickName;
     private int winNumber;
     private int loseNumber;
-    private String roomName;
-    private String ipAddress;
-    private int port;
+    private int roomID;
+    //private String ipAddress;
+    //private int port;
     
     // Konstruktor
     Player() {
         nickName = "Default";
         winNumber = 0;
         loseNumber = 0;
-        roomName = "Default";
-        try {
+        /*try {
             ipAddress = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
             Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
         }
-        port = 8080;
+        port = 8080;*/
     }
-    Player (String _nickName, int _winNumber, int _loseNumber, String _roomName, String _ipAddress, int _port) {
+    Player (String _nickName, int _winNumber, int _loseNumber) {
         nickName = _nickName;
         winNumber = _winNumber;
         loseNumber = _loseNumber;
-        roomName = _roomName;
-        ipAddress = _ipAddress;
-        port = _port;
+       /* ipAddress = _ipAddress;
+        port = _port;*/
     }
     
     // Getter
@@ -59,15 +58,15 @@ public class Player {
     public int getLoseNumber() {
         return loseNumber;
     }
-    public String getRoomName() {
-        return roomName;
+    public int getRoomID() {
+        return roomID;
     }
-    public String getIpAddress() {
+   /* public String getIpAddress() {
         return ipAddress;
     }
     public int getPort() {
         return port;
-    }
+    }*/
     
     // Setter
     public void setNickName(String _nickName) {
@@ -79,13 +78,13 @@ public class Player {
     public void setLoseNumber(int _loseNumber) {
         loseNumber = _loseNumber;
     }
-    public void setRoomName(String _roomName) {
-        roomName = _roomName;
+    public void setRoomName(int _roomID) {
+        roomID = _roomID;
     }
-    public void setIpAddress(String _ipAddress) {
+    /*public void setIpAddress(String _ipAddress) {
         ipAddress = _ipAddress;
     }
     public void setPort(int _port) {
         port = _port;
-    }
+    }*/
 }

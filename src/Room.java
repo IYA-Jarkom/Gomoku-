@@ -1,4 +1,5 @@
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /*
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @author Yoga Adrian Saputra - 13513030
  * @author Angela Lynn - 13513032
  */
-public class Room {
+public class Room implements Serializable{
     // Atribut
     private String name;
     private Board board;
@@ -24,6 +25,15 @@ public class Room {
     
     // Konstruktor
     public Room() {
+        board = new Board();
+        master = new Player();
+        players = new ArrayList<Player>();
+        playerSymbols = new ArrayList<Integer>();
+        turn = new Player();
+    }
+    
+    public Room(String _name) {
+        name=_name;
         board = new Board();
         master = new Player();
         players = new ArrayList<Player>();
@@ -83,6 +93,10 @@ public class Room {
     
     // Method
     public int countPlayers() {
-        return players.
+        return players.size();
+    }
+    
+    public void addPlayers(Player player){
+        players.add(player);
     }
 }

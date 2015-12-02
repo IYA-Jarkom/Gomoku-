@@ -1,7 +1,9 @@
 import java.io.*;
 import java.net.*;
-import java.lang.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -13,21 +15,56 @@ import java.util.ArrayList;
  * @author yoga
  */
 public class Server {
- static ArrayList<Socket> skt=new ArrayList();
-    public static void main(String args[]) {
-        String data = "Toobie ornaught toobie";
-        try {
-            
-            ServerSocket srvr = new ServerSocket(2000);
-            
-            while(true){
-                Socket sk=srvr.accept();
-                skt.add(sk);
-                System.out.println("asdasdasdasdsa");
-            } 
-          
-        } catch (Exception e) {
-            System.out.print("Whoops! It didn't work!\n");
+
+    static ServerSocket server;
+    static public Socket socket;
+    static ArrayList<Room> listRoom = new ArrayList();
+
+    private static class GetPlayerRequest
+            extends Thread {
+
+        public Socket socket;
+        public Player player;
+
+        public GetPlayerRequest(Socket clientSocket) {
+            this.socket = clientSocket;
+        }
+
+        public void run() {
+            try {
+                DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
+                //TUNGGU NAMA DARI CLIENT
+                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String name=inFromClient.readLine();
+                System.out.println(name + " has been connected");
+                player=new Player(name,0,0);
+                //KASIH LISTROOM KE CLIENT TERSEBUT
+                ObjectOutputStream objectToClient = new ObjectOutputStream(socket.getOutputStream());
+                objectToClient.writeObject(listRoom);
+                //DAPET ROOM YANG DIINGINKAN USER
+                ObjectInputStream objectFromClient = new ObjectInputStream(socket.getInputStream());
+                int roomNumber = (Integer) objectFromClient.readObject();
+                if (roomNumber >= 0) {
+                    listRoom.get(roomNumber).addPlayers(player);
+                }else{
+                    Room newRoom= new Room(player.getNickName());
+                    listRoom.add(newRoom);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public static void main(String args[]) throws IOException {
+        server = new ServerSocket(2000);
+        while (true) {
+
+            socket = server.accept();
+            Thread t = new Thread(new GetPlayerRequest(socket));
+            t.start();
         }
     }
 }

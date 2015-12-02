@@ -1,4 +1,5 @@
 import java.awt.Point;
+import java.io.Serializable;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -9,7 +10,7 @@ import java.awt.Point;
  *
  * @author yoga
  */
-public class Board {
+public class Board implements Serializable{
 
     public int[][] value;
 
