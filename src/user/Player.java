@@ -1,3 +1,5 @@
+package user;
+
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,7 +30,7 @@ public class Player {
     private int port;
     
     // Konstruktor
-    Player() {
+    public Player() {
         nickName = "Default";
         winNumber = 0;
         loseNumber = 0;
@@ -40,7 +42,7 @@ public class Player {
         }
         port = 8080;
     }
-    Player (String _nickName, int _winNumber, int _loseNumber, String _roomName, String _ipAddress, int _port) {
+    public Player (String _nickName, int _winNumber, int _loseNumber, String _roomName, String _ipAddress, int _port) {
         nickName = _nickName;
         winNumber = _winNumber;
         loseNumber = _loseNumber;

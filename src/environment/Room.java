@@ -1,4 +1,7 @@
+package environment;
 
+
+import user.Player;
 import java.util.ArrayList;
 
 /*
@@ -83,6 +86,6 @@ public class Room {
     
     // Method
     public int countPlayers() {
-        return players.
+        return players.size();
     }
 }

@@ -5,6 +5,8 @@
  */
 package gomokujarkom;
 
+import user.PlayerList;
+
 /**
  *
  * @author yoga
@@ -16,6 +18,7 @@ public class GomokuJarkom {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        PlayerList player = new PlayerList();
     }
     
 }
