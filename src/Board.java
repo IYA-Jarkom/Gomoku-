@@ -32,6 +32,10 @@ public class Board implements Serializable{
             System.arraycopy(B.value[i], 0, value[i], 0, 20);
         }
     }
+    
+    public void setBoard(int row, int column, int element) {
+        value[row][column] = element;
+    }
 
     public int[][] getVal() {
         return value;

@@ -5,8 +5,6 @@
  */
 package gomokujarkom;
 
-import user.PlayerList;
-
 /**
  * TUGAS BESAR 2
  * IF3130 Jaringan Komputer
@@ -23,7 +21,6 @@ public class GomokuJarkom {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        PlayerList player = new PlayerList();
     }
     
 }

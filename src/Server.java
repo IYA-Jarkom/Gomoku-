@@ -17,11 +17,12 @@ import java.util.logging.Logger;
  * @author yoga
  */
 public class Server {
-
+    // Atribut
     static ServerSocket server;
     static public Socket socket;
     static ArrayList<Room> listRoom = new ArrayList();
 
+    // Kelas
     private static class GetPlayerRequest
             extends Thread {
 
@@ -55,6 +56,27 @@ public class Server {
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    private static class GetBoardMoveRequest extends Thread {
+        // Atribut
+        Board board;
+        
+        // Konstruktor
+        public GetBoardMoveRequest(Board board) {
+            this.board = board;
+        }
+        
+        // Method
+        public void run() {
+            try {
+                BufferedReader clientReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String playerSymbol = clientReader.readLine();
+                
+            } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
