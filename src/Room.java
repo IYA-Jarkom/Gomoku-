@@ -23,24 +23,22 @@ public class Room implements Serializable{
     private Board board;
     private Player master;
     private ArrayList<Player> players;
-    private ArrayList<Integer> playerSymbols;
     private Player turn;
+    private boolean isGameStart;
     
     // Konstruktor
     public Room() {
         board = new Board();
         master = new Player();
         players = new ArrayList<Player>();
-        playerSymbols = new ArrayList<Integer>();
         turn = new Player();
     }
     
-    public Room(String _name) {
+    public Room(String _name, Player _master) {
         name=_name;
         board = new Board();
-        master = new Player();
+        master = _master;
         players = new ArrayList<Player>();
-        playerSymbols = new ArrayList<Integer>();
         turn = new Player();
     }
     
@@ -57,16 +55,20 @@ public class Room implements Serializable{
         return master;
     }
     
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+    
     public Player getPlayer(int i) {
         return players.get(i);
     }
     
-    public int getPlayerSymbol(int i) {
-        return playerSymbols.get(i);
-    }
-    
     public Player turn() {
         return turn;
+    }
+    
+    public boolean isGameStart() {
+        return isGameStart;
     }
     
     // Setter
@@ -86,12 +88,12 @@ public class Room implements Serializable{
         players.set(i, player);
     }
     
-    public void setPlayerSymbol(int i, int playerSymbol) {
-        playerSymbols.set(i, playerSymbol);
-    }
-    
     public void setTurn(Player _turn) {
         turn = _turn;
+    }
+    
+    public void isGameStart(boolean truth) {
+        isGameStart = truth;
     }
     
     // Method

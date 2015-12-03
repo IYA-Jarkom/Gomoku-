@@ -2,15 +2,22 @@
 
 import java.awt.Point;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
- *
- * @author yoga
+ * TUGAS BESAR 2
+ * IF3130 Jaringan Komputer
+ * -RETURN OF POI-
+ * 
+ * @author Irene Wiliudarsan - 13513002
+ * @author Yoga Adrian Saputra - 13513030
+ * @author Angela Lynn - 13513032
  */
 public class Board implements Serializable{
 
@@ -18,6 +25,9 @@ public class Board implements Serializable{
 
     public Board() {
         value = new int[20][20];
+        for (int i = 0; i < 20; i++) {
+            Arrays.fill(value[i], -1);
+        }
     }
 
     public Board(Board B) {
@@ -33,12 +43,16 @@ public class Board implements Serializable{
         }
     }
     
-    public void setBoard(int row, int column, int element) {
-        value[row][column] = element;
+    public void setBoardElement(Point position, int element) {
+        value[(int)position.getX()][(int)position.getY()] = element;
     }
 
     public int[][] getVal() {
         return value;
+    }
+    
+    public int getBoardElement(Point position) {
+        return value[(int)position.getX()][(int)position.getY()];
     }
 
     public int checkWinner(Point p) {

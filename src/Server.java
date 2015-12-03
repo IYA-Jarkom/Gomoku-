@@ -1,5 +1,6 @@
 
 
+import java.awt.Point;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -12,71 +13,152 @@ import java.util.logging.Logger;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
- *
- * @author yoga
+ * TUGAS BESAR 2
+ * IF3130 Jaringan Komputer
+ * -RETURN OF POI-
+ * 
+ * @author Irene Wiliudarsan - 13513002
+ * @author Yoga Adrian Saputra - 13513030
+ * @author Angela Lynn - 13513032
  */
 public class Server {
     // Atribut
-    static ServerSocket server;
-    static public Socket socket;
-    static ArrayList<Room> listRoom = new ArrayList();
+    static public ArrayList<Boolean> lockSendListRoom = new ArrayList();
+    static public ServerSocket server;
+    static public Socket serversocket;
+    static public ArrayList<Room> listRoom = new ArrayList();
+    static public int clientNumber = 0;
 
     // Kelas
-    private static class GetPlayerRequest
+    private static class ClientController
             extends Thread {
 
-        public Socket socket;
-        public Player player;
+        static public Socket socket;
+        static public Player player;
+        static public int id;
+        static public ObjectInputStream objectFromClient;
+        static public ObjectOutputStream objectToClient;
+        
+        private static class SendListRoom
+                extends Thread {
 
-        public GetPlayerRequest(Socket clientSocket) {
+            public SendListRoom() {
+
+            }
+
+            public void run() {
+                while (true) {
+
+                    if (lockSendListRoom.get(id)) {
+                        try {
+                            System.out.println("send!");
+                            objectToClient.writeObject(listRoom);
+                            lockSendListRoom.set(id, false);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        public ClientController(Socket clientSocket, int ID) {
             this.socket = clientSocket;
+            id = ID;
+        }
+        
+        public Player getPlayer() {
+            return this.player;
         }
 
         public void run() {
             try {
-                DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
+                objectToClient = new ObjectOutputStream(socket.getOutputStream());
+                
                 //TUNGGU NAMA DARI CLIENT
-                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String name=inFromClient.readLine();
+                objectFromClient = new ObjectInputStream(socket.getInputStream());
+                String name = (String) objectFromClient.readObject();
                 System.out.println(name + " has been connected");
                 player=new Player(name,0,0);
+                
                 //KASIH LISTROOM KE CLIENT TERSEBUT
-                ObjectOutputStream objectToClient = new ObjectOutputStream(socket.getOutputStream());
                 objectToClient.writeObject(listRoom);
+                lockSendListRoom.set(id, false);
+                //Thread sendListRoom = new Thread(new SendListRoom());
+                //sendListRoom.start();
+                
                 //DAPET ROOM YANG DIINGINKAN USER
-                ObjectInputStream objectFromClient = new ObjectInputStream(socket.getInputStream());
-                int roomNumber = (Integer) objectFromClient.readObject();
+                int roomNumber;
+                do {
+                    roomNumber = (Integer) objectFromClient.readObject();
+                    if (roomNumber==100){
+                        sleep(100);
+                        objectToClient.writeObject(listRoom);
+                    }
+                }while (roomNumber==100);
+                
                 if (roomNumber >= 0) {
                     listRoom.get(roomNumber).addPlayers(player);
+                    player.setRoomName(roomNumber);
                 }else{
-                    Room newRoom= new Room(player.getNickName());
+                    Room newRoom= new Room((String)objectFromClient.readObject(), player);
+                    newRoom.addPlayers(player);
                     listRoom.add(newRoom);
+                    player.setRoomName(listRoom.size()-1);
+                }
+                
+                //sendListRoom.stop();
+                for (int i = 0; i < lockSendListRoom.size(); i++) {
+                    lockSendListRoom.set(i, true);
+                    System.out.println(lockSendListRoom.get(i));
+                }
+                
+                // User sudah berada di room
+                do {
+                    if (roomNumber < 0) {
+                        boolean isGameStart = (boolean) objectFromClient.readObject();
+                        if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 3)) {
+                            // Game boleh dimulai
+                            objectToClient.writeObject(true);
+                            listRoom.get(player.getRoomID()).setTurn(player);
+                            listRoom.get(player.getRoomID()).isGameStart(true);
+                        } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 3)) {
+                            // Game belum boleh dimulai
+                            objectToClient.writeObject(false);
+                        }
+                    }
+                } while (!listRoom.get(player.getRoomID()).isGameStart());
+                
+                // Game dimulai
+                int turnIndex = listRoom.get(player.getRoomID()).getPlayers().indexOf(player);
+                Point position;
+                while (listRoom.get(player.getRoomID()).isGameStart()) {
+                    if (listRoom.get(player.getRoomID()).turn().equals(player)) {
+                        // Giliran player
+                        objectToClient.writeObject(true);
+                        position = (Point)objectFromClient.readObject();
+                        // Mengubah isi board
+                        listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
+                        
+                        // Mengganti giliran
+                        if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
+                            turnIndex = 0;
+                        } else {
+                            turnIndex++;
+                        }
+                        listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(turnIndex));
+                    } else {
+                        // Belum giliran player
+                        objectToClient.writeObject(false);
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-    
-    private static class GetBoardMoveRequest extends Thread {
-        // Atribut
-        Board board;
-        
-        // Konstruktor
-        public GetBoardMoveRequest(Board board) {
-            this.board = board;
-        }
-        
-        // Method
-        public void run() {
-            try {
-                BufferedReader clientReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String playerSymbol = clientReader.readLine();
-                
-            } catch (IOException ex) {
+            } catch (InterruptedException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -85,9 +167,11 @@ public class Server {
     public static void main(String args[]) throws IOException {
         server = new ServerSocket(2000);
         while (true) {
-
-            socket = server.accept();
-            Thread t = new Thread(new GetPlayerRequest(socket));
+            serversocket = server.accept();
+            Boolean bool = false;
+            lockSendListRoom.add(bool);
+            Thread t = new Thread(new ClientController(serversocket, clientNumber));
+            clientNumber++;
             t.start();
         }
     }
