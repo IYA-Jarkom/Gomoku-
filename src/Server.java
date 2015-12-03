@@ -1,5 +1,3 @@
-
-
 import java.awt.Point;
 import java.io.*;
 import java.net.*;
@@ -13,21 +11,18 @@ import java.util.logging.Logger;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
- * TUGAS BESAR 2
- * IF3130 Jaringan Komputer
- * -RETURN OF POI-
- * 
+ * TUGAS BESAR 2 IF3130 Jaringan Komputer -RETURN OF POI-
+ *
  * @author Irene Wiliudarsan - 13513002
  * @author Yoga Adrian Saputra - 13513030
  * @author Angela Lynn - 13513032
  */
 public class Server {
+
     // Atribut
     static public ArrayList<Boolean> lockSendListRoom = new ArrayList();
     static public ServerSocket server;
-    static public Socket serversocket;
     static public ArrayList<Room> listRoom = new ArrayList();
     static public int clientNumber = 0;
 
@@ -35,25 +30,30 @@ public class Server {
     private static class ClientController
             extends Thread {
 
-        static public Socket socket;
-        static public Player player;
-        static public int id;
-        static public ObjectInputStream objectFromClient;
-        static public ObjectOutputStream objectToClient;
-        
+        public Socket socket;
+        public Player player;
+        public int id;
+        public ObjectInputStream objectFromClient;
+        public ObjectOutputStream objectToClient;
+
         private static class SendListRoom
                 extends Thread {
 
-            public SendListRoom() {
+            public int id;
+            public Socket socket;
 
+            public SendListRoom(int id, Socket socket) {
+                this.id = id;
+                this.socket = socket;
             }
 
             public void run() {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
 
                     if (lockSendListRoom.get(id)) {
                         try {
                             System.out.println("send!");
+                            ObjectOutputStream objectToClient = new ObjectOutputStream(socket.getOutputStream());
                             objectToClient.writeObject(listRoom);
                             lockSendListRoom.set(id, false);
                         } catch (IOException ex) {
@@ -68,7 +68,7 @@ public class Server {
             this.socket = clientSocket;
             id = ID;
         }
-        
+
         public Player getPlayer() {
             return this.player;
         }
@@ -76,45 +76,41 @@ public class Server {
         public void run() {
             try {
                 objectToClient = new ObjectOutputStream(socket.getOutputStream());
-                
+
                 //TUNGGU NAMA DARI CLIENT
                 objectFromClient = new ObjectInputStream(socket.getInputStream());
                 String name = (String) objectFromClient.readObject();
-                System.out.println(name + " has been connected");
-                player=new Player(name,0,0);
-                
+                System.out.println(name + " has been connected" +id);
+                player = new Player(name, 0, 0);
+
                 //KASIH LISTROOM KE CLIENT TERSEBUT
                 objectToClient.writeObject(listRoom);
                 lockSendListRoom.set(id, false);
-                //Thread sendListRoom = new Thread(new SendListRoom());
-                //sendListRoom.start();
-                
+                Thread sendListRoom = new Thread(new SendListRoom(id, socket));
+                sendListRoom.start();
+
                 //DAPET ROOM YANG DIINGINKAN USER
                 int roomNumber;
-                do {
-                    roomNumber = (Integer) objectFromClient.readObject();
-                    if (roomNumber==100){
-                        sleep(100);
-                        objectToClient.writeObject(listRoom);
-                    }
-                }while (roomNumber==100);
-                
+
+                roomNumber = (Integer) objectFromClient.readObject();
+
                 if (roomNumber >= 0) {
                     listRoom.get(roomNumber).addPlayers(player);
                     player.setRoomName(roomNumber);
-                }else{
-                    Room newRoom= new Room((String)objectFromClient.readObject(), player);
+                } else {
+                    Room newRoom = new Room(player.getNickName(), player);
                     newRoom.addPlayers(player);
                     listRoom.add(newRoom);
-                    player.setRoomName(listRoom.size()-1);
+                    player.setRoomName(listRoom.size() - 1);
+                    System.out.println(listRoom.size());
                 }
-                
-                //sendListRoom.stop();
+
+                sendListRoom.stop();
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                     System.out.println(lockSendListRoom.get(i));
                 }
-                
+
                 // User sudah berada di room
                 do {
                     if (roomNumber < 0) {
@@ -130,7 +126,7 @@ public class Server {
                         }
                     }
                 } while (!listRoom.get(player.getRoomID()).isGameStart());
-                
+
                 // Game dimulai
                 int turnIndex = listRoom.get(player.getRoomID()).getPlayers().indexOf(player);
                 Point position;
@@ -138,10 +134,10 @@ public class Server {
                     if (listRoom.get(player.getRoomID()).turn().equals(player)) {
                         // Giliran player
                         objectToClient.writeObject(true);
-                        position = (Point)objectFromClient.readObject();
+                        position = (Point) objectFromClient.readObject();
                         // Mengubah isi board
                         listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
-                        
+
                         // Mengganti giliran
                         if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
                             turnIndex = 0;
@@ -158,8 +154,6 @@ public class Server {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -167,7 +161,7 @@ public class Server {
     public static void main(String args[]) throws IOException {
         server = new ServerSocket(2000);
         while (true) {
-            serversocket = server.accept();
+            Socket serversocket = server.accept();
             Boolean bool = false;
             lockSendListRoom.add(bool);
             Thread t = new Thread(new ClientController(serversocket, clientNumber));
