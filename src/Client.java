@@ -25,6 +25,7 @@ public class Client {
     static public Socket clientSocket;
     static public ObjectInputStream objectFromServer;
     static public ObjectOutputStream objectToServer;
+    static public int clientRoom;
     private static class RecListRoom
             extends Thread {
 
@@ -99,7 +100,7 @@ public class Client {
                 objectToServer.writeObject(scan.nextLine());
             }
             
-            //recListRoom.stop();
+//            recListRoom.stop();
             //System.out.println(recListRoom.getState());
             // recListRoom.join(1);
            // System.out.println(recListRoom.getState());
@@ -112,8 +113,7 @@ public class Client {
             boolean isGameStart = false;
             
             // Menerima data Player dan Room yang ditempati Player, dari server
-//            player = (Player)objectFromServer.readObject();
-            room = new Room((Room)objectFromServer.readObject());
+            clientRoom = (Integer)objectFromServer.readObject();
 
             do {
                 if (roomNumber < 0) {  // Player adalah master di room
@@ -167,7 +167,6 @@ public class Client {
                         objectToServer.writeObject(position);
                         if ((boolean) objectFromServer.readObject()) {  // Posisi board belum terisi
                             System.out.println("Pengisian board berhasil");
-                            room = new Room((Room)objectFromServer.readObject());
                             
                             // Mengecek apakah client menang
                             if ((boolean) objectFromServer.readObject()) {
@@ -182,8 +181,6 @@ public class Client {
                     isGameStart = (boolean) objectFromServer.readObject();
                 } while (isGameStart);
                 System.out.println("Game selesai");
-                listRoom = new ArrayList<Room>(new ArrayList((ArrayList<Room>) objectFromServer.readObject()));
-                listRoom.get(0).getBoard().display();
             }
         } catch (Exception e) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);

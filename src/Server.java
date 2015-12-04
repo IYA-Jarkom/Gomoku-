@@ -110,13 +110,12 @@ public class Server {
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                 }
-                //sendListRoom.stop();
+//                sendListRoom.stop();
                 objectToClient.reset();
                 objectToClient.writeObject(listRoom);
                 
                 // Mengirim data Player dan Room yang ditempati Player, ke client
-//                objectToClient.writeObject(player);
-                objectToClient.writeObject(listRoom.get(player.getRoomID()));
+                objectToClient.writeObject(player.getRoomID());
                 
                 // User sudah berada di room
                 listRoom.get(player.getRoomID()).isGameStart(false);
@@ -159,7 +158,6 @@ public class Server {
                             // Mengubah isi board
                             listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, listRoom.get(player.getRoomID()).getPlayers().indexOf(listRoom.get(player.getRoomID()).turn()));
                             objectToClient.writeObject(true);
-                            objectToClient.writeObject(listRoom.get(player.getRoomID()));
                             
                             // Memeriksa board apakah player menang
                             if (listRoom.get(player.getRoomID()).getBoard().checkWinner(position) != -1) {
@@ -184,8 +182,6 @@ public class Server {
                     }
                     objectToClient.writeObject(listRoom.get(player.getRoomID()).isGameStart());
                 }
-                objectToClient.reset();
-                objectToClient.writeObject(listRoom);
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
