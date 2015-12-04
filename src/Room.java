@@ -42,6 +42,18 @@ public class Room implements Serializable{
         turn = new Player();
     }
     
+    public Room(Room _room) {
+        name = _room.getName();
+        board = new Board();
+        board.setBoard(_room.getBoard());
+        master = _room.getMaster();
+        players = new ArrayList<Player>();
+        for (int i = 0; i < _room.countPlayers(); i++) {
+            players.add(_room.getPlayer(i));
+        }
+        turn = _room.turn();
+    }
+    
     // Getter
     public String getName() {
         return name;

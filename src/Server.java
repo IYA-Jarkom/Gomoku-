@@ -88,8 +88,8 @@ public class Server {
                 objectToClient.writeObject(listRoom);
                 objectToClient.reset();
                 lockSendListRoom.set(id, false);
-                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
-                sendListRoom.start();
+//                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
+//                sendListRoom.start();
 
                 //DAPET ROOM YANG DIINGINKAN USER
                 int roomNumber;
@@ -110,19 +110,20 @@ public class Server {
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                 }
-                sendListRoom.stop();
+                //sendListRoom.stop();
                 objectToClient.reset();
                 objectToClient.writeObject(listRoom);
                 
                 // Mengirim data Player dan Room yang ditempati Player, ke client
-                objectToClient.writeObject(player);
+//                objectToClient.writeObject(player);
                 objectToClient.writeObject(listRoom.get(player.getRoomID()));
                 
                 // User sudah berada di room
+                listRoom.get(player.getRoomID()).isGameStart(false);
                 do {
                     if (roomNumber < 0) {
                         boolean isGameStart = (boolean) objectFromClient.readObject();
-                        if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 3)) {
+                        if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 1)) {
                             // Game boleh dimulai
                             objectToClient.writeObject(true);
                             
@@ -132,43 +133,59 @@ public class Server {
 //                            }
                             listRoom.get(player.getRoomID()).setTurn(player);
                             listRoom.get(player.getRoomID()).isGameStart(true);
-                        } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 3)) {
+                        } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 1)) {
                             // Game belum boleh dimulai
                             objectToClient.writeObject(false);
                         }
                     } //jika bukan master
                     else {
                         //while (lockPlay.get(id) == false);
-                        objectToClient.reset();
-                        objectToClient.writeObject(false);
+                        while (!listRoom.get(player.getRoomID()).isGameStart()) {
+                            System.out.print("");
+                        }
+                        objectToClient.writeObject(true);
                         //lockPlay.set(id, false);
                     }
                 } while (!listRoom.get(player.getRoomID()).isGameStart());
 
                 // Game dimulai
-                int turnIndex = listRoom.get(player.getRoomID()).getPlayers().indexOf(player);
-                Point position;
                 while (listRoom.get(player.getRoomID()).isGameStart()) {
                     if (listRoom.get(player.getRoomID()).turn().equals(player)) {
                         // Giliran player
                         objectToClient.writeObject(true);
-                        position = (Point) objectFromClient.readObject();
-                        // Mengubah isi board
-                        listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
-
-                        // Mengganti giliran
-                        if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
-                            turnIndex = 0;
+                        // Menerima posisi board dari client
+                        Point position = (Point) objectFromClient.readObject();
+                        if (listRoom.get(player.getRoomID()).getBoard().getBoardElement(position) == -1) {
+                            // Mengubah isi board
+                            listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, listRoom.get(player.getRoomID()).getPlayers().indexOf(listRoom.get(player.getRoomID()).turn()));
+                            objectToClient.writeObject(true);
+                            objectToClient.writeObject(listRoom.get(player.getRoomID()));
+                            
+                            // Memeriksa board apakah player menang
+                            if (listRoom.get(player.getRoomID()).getBoard().checkWinner(position) != -1) {
+                                objectToClient.writeObject(true);
+                                listRoom.get(player.getRoomID()).isGameStart(false);
+                            } else {
+                                objectToClient.writeObject(false);
+                            }
+                            
+                            // Mengganti giliran
+                            if ((listRoom.get(player.getRoomID()).getPlayers().indexOf(listRoom.get(player.getRoomID()).turn()) + 1) < listRoom.get(player.getRoomID()).countPlayers()) {
+                                listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(listRoom.get(player.getRoomID()).getPlayers().indexOf(listRoom.get(player.getRoomID()).turn()) + 1));
+                            } else {
+                                listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(0));
+                            }
                         } else {
-                            turnIndex++;
+                            objectToClient.writeObject(false);
                         }
-                        listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(turnIndex));
                     } else {
                         // Belum giliran player
                         objectToClient.writeObject(false);
                     }
                     objectToClient.writeObject(listRoom.get(player.getRoomID()).isGameStart());
                 }
+                objectToClient.reset();
+                objectToClient.writeObject(listRoom);
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -178,6 +195,16 @@ public class Server {
     }
 
     public static void main(String args[]) throws IOException {
+        InetAddress ip;
+        String hostname;
+        try{
+            ip=InetAddress.getLocalHost();
+            hostname= ip.getHostName();
+            System.out.println("Server IP address : "+ip);
+            System.out.println("Server IP hostname : "+hostname);
+        }catch(UnknownHostException e){
+            e.printStackTrace();
+        }
         server = new ServerSocket(2000);
         while (true) {
             Socket serversocket = server.accept();

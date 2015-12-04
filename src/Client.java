@@ -54,12 +54,13 @@ public class Client {
 
     public static void main(String args[]) throws IOException, ClassNotFoundException {
         try {
-
-            Room room = null;
-            Player player;
-
-            clientSocket = new Socket("localhost", 2000);
             Scanner scan = new Scanner(System.in);
+
+            Room room;
+            Player player;
+            System.out.print("Input server IP hostname : ");
+            String host=scan.nextLine();
+            clientSocket = new Socket(host, 2000);
 
             //SEND NAMA TO SERVER
             objectToServer = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -86,19 +87,19 @@ public class Client {
                 int idroom = i + 1;
                 System.out.println(idroom + ". " + listRoom.get(i).getName());
             }
-            Thread recListRoom = new Thread(new RecListRoom());
-            recListRoom.start();
+//            Thread recListRoom = new Thread(new RecListRoom());
+//            recListRoom.start();
             //System.out.println(recListRoom.getState());
             //System.out.println(recListRoom.isAlive());
             //KASIH ROOM NUMER KE SERVER   
             roomNumber = Integer.parseInt(scan.nextLine()) - 1;
             objectToServer.writeObject(roomNumber);
             if (roomNumber < 0) {
-                System.out.print("Input nama room :");
+                System.out.print("Input nama room : ");
                 objectToServer.writeObject(scan.nextLine());
             }
             
-            recListRoom.stop();
+            //recListRoom.stop();
             //System.out.println(recListRoom.getState());
             // recListRoom.join(1);
            // System.out.println(recListRoom.getState());
@@ -111,8 +112,8 @@ public class Client {
             boolean isGameStart = false;
             
             // Menerima data Player dan Room yang ditempati Player, dari server
-            player = (Player)objectFromServer.readObject();
-            room = (Room)objectFromServer.readObject();
+//            player = (Player)objectFromServer.readObject();
+            room = new Room((Room)objectFromServer.readObject());
 
             do {
                 if (roomNumber < 0) {  // Player adalah master di room
@@ -142,6 +143,7 @@ public class Client {
                 } else {    // Player bukan master di room
                     System.out.println("Wait for the Master to start the game");
                     isGameStart = (boolean) objectFromServer.readObject();
+                    System.out.println("Game Start");
                 }
             } while (!isGameStart);
 
@@ -149,8 +151,7 @@ public class Client {
                 // Game dimulai
                 boolean isPlayerTurn = false;
                 int x, y;
-                Point position = new Point();
-
+                
                 do {
                     isPlayerTurn = (boolean) objectFromServer.readObject();
                     if (isPlayerTurn) {
@@ -160,11 +161,19 @@ public class Client {
                         x = Integer.parseInt(scan.nextLine());
                         System.out.print("y : ");
                         y = Integer.parseInt(scan.nextLine());
-                        position.setLocation(x, y);
-
-                        if (room.getBoard().getBoardElement(position) == -1) {  // Posisi board belum terisi
-                            // Mengirim posisi board yang dipilih player ke server
-                            objectToServer.writeObject(position);
+                        Point position = new Point(x,y);
+                        
+                        // Mengirim posisi board ke server
+                        objectToServer.writeObject(position);
+                        if ((boolean) objectFromServer.readObject()) {  // Posisi board belum terisi
+                            System.out.println("Pengisian board berhasil");
+                            room = new Room((Room)objectFromServer.readObject());
+                            
+                            // Mengecek apakah client menang
+                            if ((boolean) objectFromServer.readObject()) {
+                                System.out.println("You win");
+                            }
+                            
                             isPlayerTurn = false;
                         } else {
                             System.out.println("Posisi board sudah terisi. Pilih posisi lain");
@@ -172,6 +181,9 @@ public class Client {
                     }
                     isGameStart = (boolean) objectFromServer.readObject();
                 } while (isGameStart);
+                System.out.println("Game selesai");
+                listRoom = new ArrayList<Room>(new ArrayList((ArrayList<Room>) objectFromServer.readObject()));
+                listRoom.get(0).getBoard().display();
             }
         } catch (Exception e) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
