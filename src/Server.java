@@ -123,7 +123,7 @@ public class Server {
                 do {
                     if (roomNumber < 0) {
                         boolean isGameStart = (boolean) objectFromClient.readObject();
-                        if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 3)) {
+                        if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 1)) {
                             // Game boleh dimulai
                             objectToClient.writeObject(true);
                             
@@ -133,7 +133,7 @@ public class Server {
 //                            }
                             listRoom.get(player.getRoomID()).setTurn(player);
                             listRoom.get(player.getRoomID()).isGameStart(true);
-                        } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 3)) {
+                        } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 1)) {
                             // Game belum boleh dimulai
                             objectToClient.writeObject(false);
                         }
@@ -150,26 +150,37 @@ public class Server {
 
                 // Game dimulai
                 int turnIndex = listRoom.get(player.getRoomID()).getPlayers().indexOf(player);
-                Point position;
                 while (listRoom.get(player.getRoomID()).isGameStart()) {
                     if (listRoom.get(player.getRoomID()).turn().equals(player)) {
                         // Giliran player
                         objectToClient.writeObject(true);
                         // Menerima posisi board dari client
-                        position = (Point) objectFromClient.readObject();
+                        Point position = (Point) objectFromClient.readObject();
                         if (listRoom.get(player.getRoomID()).getBoard().getBoardElement(position) == -1) {
                             // Mengubah isi board
                             listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
+                            System.out.println("turnIndex setelah set board "+turnIndex);
                             objectToClient.writeObject(true);
                             objectToClient.writeObject(listRoom.get(player.getRoomID()));
                             
+                            // Memeriksa board apakah player menang
+                            if (listRoom.get(player.getRoomID()).getBoard().checkWinner(position) != -1) {
+                                objectToClient.writeObject(true);
+                                listRoom.get(player.getRoomID()).isGameStart(false);
+                            } else {
+                                objectToClient.writeObject(false);
+                            }
+                            
                             // Mengganti giliran
+                            System.out.println("turnIndex sebelum ganti giliran "+turnIndex);
                             if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
                                 turnIndex = 0;
                             } else {
                                 turnIndex++;
                             }
+                            System.out.println("turnIndex setelah ganti giliran"+turnIndex);
                             listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(turnIndex));
+                            System.out.println("turnIndex setelah set turn"+turnIndex);
                         } else {
                             objectToClient.writeObject(false);
                         }

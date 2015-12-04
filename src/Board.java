@@ -60,16 +60,27 @@ public class Board implements Serializable{
         int i = 1;
         
         //CHECK HORIZONTAL
-        while (value[(int) p.getX() - i][(int) p.getY()] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        if ((p.getX()-i) >= 0) {
+            while (value[(int) p.getX() - i][(int) p.getY()] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if ((p.getX()-i) < 0) {
+                    break;
+                }
+            }
+            i = 1;
         }
-        i = 1;
-        while (value[(int) p.getX() + i][(int) p.getY()] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        
+        if ((p.getX()+i) < 20) {
+            while (value[(int) p.getX() + i][(int) p.getY()] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if ((p.getX()+i) >= 20) {
+                    break;
+                }
+            }
         }
-        if (sum == 5) {
+        if (sum >= 5) {
             return value[(int) p.getX()][(int) p.getY()];
         }
         
@@ -77,16 +88,27 @@ public class Board implements Serializable{
         
         sum=1;
         i=1;
-        while (value[(int) p.getX()][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        if ((p.getY()-i) >= 0) {
+            while (value[(int) p.getX()][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if ((p.getY()-i) < 0) {
+                    break;
+                }
+            }
+            i = 1;
         }
-        i = 1;
-        while (value[(int) p.getX()][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        
+        if ((p.getY()+i) < 20) {
+            while (value[(int) p.getX()][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if ((p.getY()+i) >= 20) {
+                    break;
+                }
+            }
         }
-        if (sum == 5) {
+        if (sum >= 5) {
             return value[(int) p.getX()][(int) p.getY()];
         }
         
@@ -94,16 +116,27 @@ public class Board implements Serializable{
         
         sum=1;
         i=1;
-        while (value[(int) p.getX()-i][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        if (((p.getX()-i) >= 0) && ((p.getY()-i) >= 0)) {
+            while (value[(int) p.getX()-i][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if (((p.getX()-i) < 0) || ((p.getY()-i) < 0)) {
+                    break;
+                }
+            }
+            i = 1;
         }
-        i = 1;
-        while (value[(int) p.getX()+i][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        
+        if (((p.getX()+i) < 20) && ((p.getY()+i) < 20)) {
+            while (value[(int) p.getX()+i][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if (((p.getX()+i) >= 20) || ((p.getY()+i) >= 20)) {
+                    break;
+                }
+            }
         }
-        if (sum == 5) {
+        if (sum >= 5) {
             return value[(int) p.getX()][(int) p.getY()];
         }
         
@@ -111,20 +144,41 @@ public class Board implements Serializable{
         
         sum=1;
         i=1;
-        while (value[(int) p.getX()-i][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        if (((p.getX()-i) >= 0) && ((p.getY()+i) < 20)) {
+            while (value[(int) p.getX()-i][(int) p.getY()+i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if (((p.getX()-i) < 0) || ((p.getY()+i) >= 20)) {
+                    break;
+                }
+            }
+            i = 1;
         }
-        i = 1;
-        while (value[(int) p.getX()+i][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
-            sum++;
-            i++;
+        
+        if (((p.getX()+i) < 20) && ((p.getY()-i) >= 0)) {
+            while (value[(int) p.getX()+i][(int) p.getY()-i] == value[(int) p.getX()][(int) p.getY()]) {
+                sum++;
+                i++;
+                if (((p.getX()+i) >= 20) || ((p.getY()-i) < 0)) {
+                    break;
+                }
+            }
         }
-        if (sum == 5) {
+        if (sum >= 5) {
             return value[(int) p.getX()][(int) p.getY()];
         }
         
-        return 0;
+        return -1;
     }
 
+    public void display() {
+        System.out.println();
+        for (int i = 0; i < 20; i++) {
+            for (int j = 0; j < 20; j++) {
+                System.out.print(value[i][j]+"\t");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 }

@@ -94,7 +94,7 @@ public class Client {
             roomNumber = Integer.parseInt(scan.nextLine()) - 1;
             objectToServer.writeObject(roomNumber);
             if (roomNumber < 0) {
-                System.out.print("Input nama room :");
+                System.out.print("Input nama room : ");
                 objectToServer.writeObject(scan.nextLine());
             }
             
@@ -150,8 +150,7 @@ public class Client {
                 // Game dimulai
                 boolean isPlayerTurn = false;
                 int x, y;
-                Point position = new Point();
-
+                
                 do {
                     isPlayerTurn = (boolean) objectFromServer.readObject();
                     if (isPlayerTurn) {
@@ -161,13 +160,19 @@ public class Client {
                         x = Integer.parseInt(scan.nextLine());
                         System.out.print("y : ");
                         y = Integer.parseInt(scan.nextLine());
-                        position.setLocation(x, y);
+                        Point position = new Point(x,y);
                         
                         // Mengirim posisi board ke server
                         objectToServer.writeObject(position);
                         if ((boolean) objectFromServer.readObject()) {  // Posisi board belum terisi
                             System.out.println("Pengisian board berhasil");
                             room = (Room)objectFromServer.readObject();
+                            
+                            // Mengecek apakah client menang
+                            if ((boolean) objectFromServer.readObject()) {
+                                System.out.println("You win");
+                            }
+                            
                             isPlayerTurn = false;
                         } else {
                             System.out.println("Posisi board sudah terisi. Pilih posisi lain");
@@ -175,6 +180,7 @@ public class Client {
                     }
                     isGameStart = (boolean) objectFromServer.readObject();
                 } while (isGameStart);
+                System.out.println("Game selesai");
             }
         } catch (Exception e) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
