@@ -10,11 +10,14 @@
 package gui.page;
 
 import gui.element.*;
+import javax.swing.JButton;
 
 /**
  * Kelas halaman ruangan tempat pengguna bermain
  */
 public class RoomPage extends BackgroundPanel {
+    // Atribut
+    private ImageButton backButton;
     // Konstruktor
     public RoomPage() {
        // Background
@@ -24,11 +27,16 @@ public class RoomPage extends BackgroundPanel {
        TransparentPanel elementPanel = new TransparentPanel();
        
        // Button back
-       ImageButton backButton = new ImageButton("button-back.png");
+       backButton = new ImageButton("button-back.png");
        elementPanel.add(backButton.getButton());
        
        // Finalisasi
        setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
        add(elementPanel);
+    }
+    
+    // Getter
+    public JButton getBackButton() {
+        return backButton.getButton();
     }
 }

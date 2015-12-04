@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import javafx.scene.paint.Color;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -26,6 +27,7 @@ import javax.swing.border.EmptyBorder;
 public class EmptyWindow extends BackgroundPanel {
     // Atribut
     private String message;
+    private ImageButton yesButton;
     
     // Konstruktor
     public EmptyWindow() {
@@ -43,7 +45,7 @@ public class EmptyWindow extends BackgroundPanel {
         Label winnerNameLabel = new Label(message, "white", 35);
         elementPanel.add(winnerNameLabel);
         // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
+        yesButton = new ImageButton("button-check.png");
         elementPanel.add(yesButton.getButton());
        
         // Finalisasi
@@ -66,12 +68,17 @@ public class EmptyWindow extends BackgroundPanel {
         Label winnerNameLabel = new Label(message, "white", 35);
         elementPanel.add(winnerNameLabel);
         // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
+        yesButton = new ImageButton("button-check.png");
         elementPanel.add(yesButton.getButton());
        
         // Finalisasi
         elementPanel.setBorder(new EmptyBorder(300,0,0,0));
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
+    }
+    
+    // Getter
+    public JButton getYesButton() {
+        return yesButton.getButton();
     }
 }

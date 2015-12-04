@@ -8,9 +8,12 @@ package gui;
 import gui.element.*;
 import gui.page.*;
 import gui.window.*;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -27,36 +30,94 @@ import javax.swing.JPanel;
  * @author Angela Lynn - 13513032
  */
 public class Main extends JFrame{
+    // Atribut
+    private JLayeredPane layers;
+    private HomePage homePage;
+    private MenuPage menuPage;
+    private RoomPage roomPage;
+    private EmptyWindow emptyWindow;
+    private String nickname;
+    private int character;
+    
+    // Konstruktor
     public Main() {
+        // Inisiasi
         setTitle("WAL");
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        //BackgroundPanel bgPanel = new BackgroundPanel();
         
-        //MenuPage page = new MenuPage();
-        //add(page);
-//        RoomPage roomPage = new RoomPage();
-//        add(roomPage);
-        JLayeredPane layers = new JLayeredPane();
+        layers = new JLayeredPane();
+        layers.setPreferredSize(new Dimension(getPreferredSize().width, getPreferredSize().height));
         layers.setOpaque(false);
         layers.setLayout(null);
-        //JPanel layers = new JPanel();
-        RoomPage bgPanel = new RoomPage();
-        RoleWindow roleWindow = new RoleWindow();
-        //CharacterWindow characterWindow = new CharacterWindow();
-        //OtherWinWindow window = new OtherWinWindow();
-        EmptyWindow window = new EmptyWindow();
-        //layers.add(roleWindow, new Integer(1));
-        layers.add(window, new Integer(1));
-        layers.add(bgPanel, new Integer(0));
-        add(layers);
-//        bgPanel.add(roleWindow);
-//        add(bgPanel);
+        homeController();
         setVisible(true);
     }
     
+    // Method
+    public void homeController() {
+        layers = new JLayeredPane();
+        homePage = new HomePage();
+        layers.add(homePage, new Integer(0));
+        add(layers);
+        setContentPane(layers);
+        // Mendeteksi tombol tombol ok pada home ditekan
+        homePage.getYesButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == homePage.getYesButton()) {
+                    nickname = homePage.getNickname();
+                    if (nickname.isEmpty()) {
+                        emptyWindow = new EmptyWindow("Please insert a valid nickname");
+                        homePage.setNickname(nickname);
+                        layers.add(emptyWindow, new Integer(1));
+                        setContentPane(layers);
+                        backFromEmptyWindow(emptyWindow);
+                    } else {
+                        menuController();
+                        invalidate();
+                        validate();
+                    }
+                }
+            }
+        });
+    }
+    public void menuController() {
+        layers = new JLayeredPane();
+        menuPage = new MenuPage(nickname);
+        layers.add(menuPage, new Integer(0));
+        setContentPane(layers);
+        // Mendeteksi tombol back ditekan
+        menuPage.getBackButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == menuPage.getBackButton()) {
+                    homeController();
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    
+    // Prosedur kecil
+    public void backFromEmptyWindow(EmptyWindow messagePage) {
+        messagePage.getYesButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == messagePage.getYesButton()) {
+                    layers.remove(layers.getIndexOf(messagePage));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    
+    // Program utama
     public static void main (String[] args) {
         Main mainFrame = new Main();
     }

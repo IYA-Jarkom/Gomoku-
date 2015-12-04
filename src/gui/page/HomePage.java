@@ -13,12 +13,20 @@ import gui.element.BackgroundPanel;
 import gui.element.ColoredTextField;
 import gui.element.ImageButton;
 import gui.element.TransparentPanel;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 /**
  * Kelas halaman home dimana pengguna akan memasukkan nickname
  */
 public class HomePage extends BackgroundPanel {
+    // Atribut
+    private ColoredTextField nameField;
+    private ImageButton yesButton;
+    
     // Konstruktor
     public HomePage() {
         // Panel nickname
@@ -26,13 +34,27 @@ public class HomePage extends BackgroundPanel {
         nicknamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 500));
         
         // Name TextField
-        ColoredTextField nameField = new ColoredTextField();
+        nameField = new ColoredTextField();
         nicknamePanel.add(nameField);
         // Button Check
-        ImageButton imageButton = new ImageButton("button-check.png");
-        nicknamePanel.add(imageButton.getButton());
+        yesButton = new ImageButton("button-check.png");
+        nicknamePanel.add(yesButton.getButton());
         
         // Finalisasi
+        setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(nicknamePanel);
+    }
+    
+    // Getter
+    public String getNickname() {
+        return nameField.getText();
+    }
+    public JButton getYesButton() {
+        return yesButton.getButton();
+    }
+    
+    // Setter
+    public void setNickname(String nickname) {
+        nameField.setText(nickname);
     }
 }
