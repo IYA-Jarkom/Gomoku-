@@ -24,7 +24,6 @@ import javax.swing.border.EmptyBorder;
  */
 public class CharacterWindow extends BackgroundPanel {
     // Atribut
-    private ImageButton yesButton;
     private ImageButton noButton;
     
     // Konstruktor
@@ -60,9 +59,6 @@ public class CharacterWindow extends BackgroundPanel {
         // Button no
         noButton = new ImageButton("button-cross.png");
         decisionPanel.add(noButton.getButton());
-        // Button yes
-        yesButton = new ImageButton("button-check.png");
-        decisionPanel.add(yesButton.getButton());
         
         // Finalisasi
         elementPanel.setBorder(new EmptyBorder(290,0,0,0));
@@ -73,9 +69,6 @@ public class CharacterWindow extends BackgroundPanel {
     }
     
     // Getter
-    public JButton getYesButton() {
-        return yesButton.getButton();
-    }
     public JButton getNoButton() {
         return noButton.getButton();
     }

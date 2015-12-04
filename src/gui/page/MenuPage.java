@@ -29,7 +29,8 @@ public class MenuPage extends BackgroundPanel {
     private ImageButton backButton;
     private ImageButton newRoomButton;
     private Label nicknameLabel;
-    private ImageButton menuButton;
+    private ImageButton highScoreButton;
+    private JPanel roomListPanel;
     
     // Konstruktor
     public MenuPage(String nickname) {
@@ -54,11 +55,11 @@ public class MenuPage extends BackgroundPanel {
         nicknameLabel = new Label(nickname);
         menuPanel.add(nicknameLabel);
         // Tombol menu
-        menuButton = new ImageButton("button-highscore.png");
-        menuPanel.add(menuButton.getButton());
+        highScoreButton = new ImageButton("button-highscore.png");
+        menuPanel.add(highScoreButton.getButton());
 
         // Panel Room List
-        JPanel roomListPanel = new JPanel();
+        roomListPanel = new JPanel();
         roomListPanel.setBackground(Color.decode("#16495A"));
         roomListPanel.setOpaque(true);
         roomListPanel.setBorder(new EmptyBorder(20,0,0,20));
@@ -88,5 +89,11 @@ public class MenuPage extends BackgroundPanel {
     }
     public JButton getNewRoomButton() {
         return newRoomButton.getButton();
+    }
+    public JPanel getRoomListPanel() {
+        return roomListPanel;
+    }
+    public JButton getHighScoreButton() {
+        return highScoreButton.getButton();
     }
 }

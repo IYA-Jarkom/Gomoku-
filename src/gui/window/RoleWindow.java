@@ -23,7 +23,6 @@ public class RoleWindow extends BackgroundPanel {
     // Atribut
     private ImageButton playerButton;
     private ImageButton spectatorButton;
-    private ImageButton yesButton;
     private ImageButton noButton;
             
     // Konstruktor
@@ -52,9 +51,6 @@ public class RoleWindow extends BackgroundPanel {
         // Button no
         ImageButton noButton = new ImageButton("button-cross.png");
         decisionPanel.add(noButton.getButton());
-        // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
-        decisionPanel.add(yesButton.getButton());
        
         // Finalisasi
         elementPanel.setBorder(new EmptyBorder(320,0,0,0));
@@ -70,9 +66,6 @@ public class RoleWindow extends BackgroundPanel {
     }
     public JButton getSpectatorButton() {
         return spectatorButton.getButton();
-    }
-    public JButton getYesButton() {
-        return yesButton.getButton();
     }
     public JButton getNoButton() {
         return noButton.getButton();

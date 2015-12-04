@@ -14,6 +14,7 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -36,8 +37,13 @@ public class Main extends JFrame{
     private MenuPage menuPage;
     private RoomPage roomPage;
     private NewRoomWindow newRoomWindow;
+    private RoleWindow roleWindow;
+    private CharacterWindow characterWindow;
+    private OtherWinWindow otherWinWindow;
+    private PlayerWinWindow playerWinWindow;
     private EmptyWindow emptyWindow;
     private String nickname;
+    private String roomName;
     private int character;
     
     // Konstruktor
@@ -53,6 +59,7 @@ public class Main extends JFrame{
         layers.setPreferredSize(new Dimension(getPreferredSize().width, getPreferredSize().height));
         layers.setOpaque(false);
         layers.setLayout(null);
+        roomName = "Ruanganku";
         homeController();
         //nickname = "Default";
         //menuController();
@@ -107,9 +114,10 @@ public class Main extends JFrame{
             }
         });
         newRoomHandler();
+        chooseRoomHandler();
     }
     // Menangani tampilan dan aksi pada page Room
-    public void roomController(String roomName) { // Kirim nama room, daftar pengguna dan masternya
+    public void roomController() { // Kirim nama room, daftar pengguna dan masternya
         layers = new JLayeredPane();
         roomPage = new RoomPage();
         layers.add(roomPage, new Integer(0));
@@ -175,6 +183,60 @@ public class Main extends JFrame{
             }
         });
     }
+    // Mendeteksi tombol room ditekan
+    public void chooseRoomHandler() {
+        menuPage.getHighScoreButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == menuPage.getHighScoreButton()) {
+                    chooseRoleHandler();
+                }
+            }
+        });
+    }
+    // Mendeteksi tombol role ditekan
+    public void chooseRoleHandler() {
+        roomPage = new RoomPage();
+        layers.add(roomPage, new Integer(0));
+        roleWindow = new RoleWindow();
+        layers.add(roleWindow, new Integer(1));
+        setContentPane(layers);
+        // Mendeteksi tombol role player ditekan
+        roleWindow.getPlayerButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == roleWindow.getPlayerButton()) {
+                    layers.remove(layers.getIndexOf(roleWindow));
+                    characterWindow = new CharacterWindow();
+                    layers.add(characterWindow, new Integer(1));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+        // Mendeteksi tombol role spectator ditekan
+        roleWindow.getSpectatorButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == roleWindow.getSpectatorButton()) {
+                    layers.remove(layers.getIndexOf(roleWindow));
+                    roomPage = new RoomPage();
+                    characterWindow = new CharacterWindow();
+                    layers.add(characterWindow, new Integer(1));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+        closeWindow(roleWindow);
+    }
+    // Mendeteksi pilihan character ditekan
+    public void chooseCharacterHandler() {
+        
+    }
+    
     // Mengembalikan ke window sebelumnya apabila tombol check ditekan
     public void backFromEmptyWindow(EmptyWindow messagePage) {
         messagePage.getYesButton().addActionListener(new ActionListener() {

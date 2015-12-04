@@ -15,15 +15,22 @@ import gui.element.ImageButton;
 import gui.element.TransparentPanel;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 /**
  * Kelas window untuk memasukkan nama room baru
  */
 public class NewRoomWindow extends BackgroundPanel {
+    // Atribut
+    private ColoredTextField roomNameField;
+    private ImageButton yesButton;
+    private ImageButton noButton;
+    
+    // Kosntruktor
     public NewRoomWindow() {
         // Background
-        super("bg-create-room.png");
+        super("bg-new-room.png");
         super.setOpaque(false);
        
         // Panel Element
@@ -34,17 +41,17 @@ public class NewRoomWindow extends BackgroundPanel {
         TransparentPanel roomNamePanel = new TransparentPanel();
         roomNamePanel.setLayout(new FlowLayout());
         // Text Field room name
-        ColoredTextField roomNameField = new ColoredTextField();
+        roomNameField = new ColoredTextField();
         roomNamePanel.add(roomNameField);
         
         // Panel decision
         TransparentPanel decisionPanel = new TransparentPanel();
         decisionPanel.setLayout(new FlowLayout());
         // Button no
-        ImageButton noButton = new ImageButton("button-cross.png");
+        noButton = new ImageButton("button-cross.png");
         decisionPanel.add(noButton.getButton());
         // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
+        yesButton = new ImageButton("button-check.png");
         decisionPanel.add(yesButton.getButton());
        
         // Finalisasi
@@ -53,5 +60,16 @@ public class NewRoomWindow extends BackgroundPanel {
         elementPanel.add(decisionPanel);
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
+    }
+    
+    // Getter
+    public String getNewRoomName() {
+        return roomNameField.getText();
+    }
+    public JButton getYesButton() {
+        return yesButton.getButton();
+    }
+    public JButton getNoButton() {
+        return noButton.getButton();
     }
 }
