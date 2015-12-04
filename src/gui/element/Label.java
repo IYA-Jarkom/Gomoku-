@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 /**
  * Kelas untuk membuat label
@@ -20,13 +21,13 @@ import javax.swing.JLabel;
 public class Label extends JLabel{
     // Konstruktor label dengan ukuran default
     public Label(String text) {
-        super(text);
+        super(text, SwingConstants.CENTER);
         setForeground(Color.white);
         setFont(new Font("Jaapokki", Font.PLAIN, 30));
     }
     // Konstruktor label dengan ukuran sesuai masukkan pengguna
     public Label(String text, String color, int size) {
-        super(text);
+        super(text, SwingConstants.CENTER);
         if (color.equals("white")) {
             setForeground(Color.white);
             setFont(new Font("Jaapokki", Font.PLAIN, size));

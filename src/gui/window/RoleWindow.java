@@ -13,12 +13,19 @@ import gui.element.*;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 /**
  * Kelas window untuk memilih role pengguna sebagai player atau spectator
  */
 public class RoleWindow extends BackgroundPanel {
+    // Atribut
+    private ImageButton playerButton;
+    private ImageButton spectatorButton;
+    private ImageButton yesButton;
+    private ImageButton noButton;
+            
     // Konstruktor
     public RoleWindow() {
         // Background
@@ -55,5 +62,19 @@ public class RoleWindow extends BackgroundPanel {
         elementPanel.add(decisionPanel);
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
+    }
+    
+    // Getter
+    public JButton getPlayerButton() {
+        return playerButton.getButton();
+    }
+    public JButton getSpectatorButton() {
+        return spectatorButton.getButton();
+    }
+    public JButton getYesButton() {
+        return yesButton.getButton();
+    }
+    public JButton getNoButton() {
+        return noButton.getButton();
     }
 }

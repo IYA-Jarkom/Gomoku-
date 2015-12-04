@@ -20,8 +20,8 @@ import javax.swing.border.EmptyBorder;
 /**
  * Kelas window untuk memasukkan nama room baru
  */
-public class CreateRoomWindow extends BackgroundPanel {
-    public CreateRoomWindow() {
+public class NewRoomWindow extends BackgroundPanel {
+    public NewRoomWindow() {
         // Background
         super("bg-create-room.png");
         super.setOpaque(false);

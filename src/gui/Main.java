@@ -35,6 +35,7 @@ public class Main extends JFrame{
     private HomePage homePage;
     private MenuPage menuPage;
     private RoomPage roomPage;
+    private NewRoomWindow newRoomWindow;
     private EmptyWindow emptyWindow;
     private String nickname;
     private int character;
@@ -53,10 +54,14 @@ public class Main extends JFrame{
         layers.setOpaque(false);
         layers.setLayout(null);
         homeController();
+        //nickname = "Default";
+        //menuController();
+//        roomController("Roomku");
         setVisible(true);
     }
     
     // Method
+    // Menangani tampilan dan aksi pada page Home
     public void homeController() {
         layers = new JLayeredPane();
         homePage = new HomePage();
@@ -70,12 +75,12 @@ public class Main extends JFrame{
                 if (e.getSource() == homePage.getYesButton()) {
                     nickname = homePage.getNickname();
                     if (nickname.isEmpty()) {
-                        emptyWindow = new EmptyWindow("Please insert a valid nickname");
-                        homePage.setNickname(nickname);
+                        emptyWindow = new EmptyWindow("Please insert a valid nickname.");
                         layers.add(emptyWindow, new Integer(1));
                         setContentPane(layers);
                         backFromEmptyWindow(emptyWindow);
                     } else {
+                        homePage.setNickname(nickname);
                         menuController();
                         invalidate();
                         validate();
@@ -84,6 +89,7 @@ public class Main extends JFrame{
             }
         });
     }
+    // Menangani tampilan dan aksi pada page Menu
     public void menuController() {
         layers = new JLayeredPane();
         menuPage = new MenuPage(nickname);
@@ -100,15 +106,122 @@ public class Main extends JFrame{
                 }
             }
         });
+        newRoomHandler();
+    }
+    // Menangani tampilan dan aksi pada page Room
+    public void roomController(String roomName) { // Kirim nama room, daftar pengguna dan masternya
+        layers = new JLayeredPane();
+        roomPage = new RoomPage();
+        layers.add(roomPage, new Integer(0));
+        setContentPane(layers);
+        // Mendeteksi tombol back ditekan
+        roomPage.getBackButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == roomPage.getBackButton()) {
+                    menuController();
+                    invalidate();
+                    validate();
+                }
+            }
+        });
     }
     
-    // Prosedur kecil
+    // Prosedur lainnya
+    // Mendeteksi tombol add new room ditekan
+    private void newRoomHandler() {
+        menuPage.getNewRoomButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == menuPage.getNewRoomButton()) {
+                    newRoomWindow = new NewRoomWindow();
+                    layers.add(newRoomWindow, new Integer(1));
+                    setContentPane(layers);
+                    // Memeriksa pengguna menekan tombol check
+                    newRoomWindow.getYesButton().addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent eOk) {
+                            if (eOk.getSource() == newRoomWindow.getYesButton()) {
+                                String newRoomName = newRoomWindow.getNewRoomName();
+                                if (newRoomName.isEmpty()) {
+                                    emptyWindow = new EmptyWindow("Please insert a valid room name.");
+                                    layers.add(emptyWindow, new Integer(2));
+                                    setContentPane(layers);
+                                    backFromEmptyWindow(emptyWindow);
+                                } else {
+                                    // Simpan nama room baru, tutup window
+                                    closeWindow(newRoomWindow);
+                                    menuController();
+                                    invalidate();
+                                    validate();
+                                }
+                            }
+                        }
+                    });
+                    // Memeriksa pengguna menekan tombol close
+                    newRoomWindow.getNoButton().addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent eNo) {
+                            if (eNo.getSource() == newRoomWindow.getNoButton()) {
+                                // Tutup window
+                                closeWindow(newRoomWindow);
+                                menuController();
+                                invalidate();
+                                validate();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+    // Mengembalikan ke window sebelumnya apabila tombol check ditekan
     public void backFromEmptyWindow(EmptyWindow messagePage) {
         messagePage.getYesButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == messagePage.getYesButton()) {
                     layers.remove(layers.getIndexOf(messagePage));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    // Mengembalikan ke window sebelumnya apabila tombol close ditekan
+    public void closeWindow(CharacterWindow window) {
+        window.getNoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == window.getNoButton()) {
+                    layers.remove(layers.getIndexOf(window));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    public void closeWindow(RoleWindow window) {
+        window.getNoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == window.getNoButton()) {
+                    layers.remove(layers.getIndexOf(window));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    public void closeWindow(NewRoomWindow window) {
+        window.getNoButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == window.getNoButton()) {
+                    layers.remove(layers.getIndexOf(window));
                     setContentPane(layers);
                     invalidate();
                     validate();

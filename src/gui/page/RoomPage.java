@@ -10,7 +10,18 @@
 package gui.page;
 
 import gui.element.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  * Kelas halaman ruangan tempat pengguna bermain
@@ -23,16 +34,71 @@ public class RoomPage extends BackgroundPanel {
        // Background
        super("bg-room.jpg");
        
-       // Panel Element
-       TransparentPanel elementPanel = new TransparentPanel();
+       // Panel Info
+       TransparentPanel infoPanel = new TransparentPanel();
+       infoPanel.setLayout(new GridLayout(3,1,0,50));
        
+       // Panel Header
+       TransparentPanel headerPanel = new TransparentPanel();
        // Button back
        backButton = new ImageButton("button-back.png");
-       elementPanel.add(backButton.getButton());
+       headerPanel.add(backButton.getButton());
+       String roomName = "Ruanganku";
+       headerPanel.add(new Label(roomName));
+       infoPanel.add(headerPanel);
+       
+       // Panel Players
+       TransparentPanel playersPanel = new TransparentPanel();
+       playersPanel.setLayout(new GridLayout(3,1,0,0)); /// Jumlah pemain: 3
+       for (int i=0; i<3; i++) { // Looping sejumlah jumlah pemain
+            // Panel untuk tiap player
+            TransparentPanel playerPanel = new TransparentPanel();
+            playerPanel.setLayout(new GridLayout(1,3,20,0));
+            // Player's icon
+            ImageButton playerIcon = new ImageButton("character-penguin.png");
+            playerPanel.add(playerIcon.getButton());
+            // Player's name
+            playerPanel.add(new Label("Player " + i));
+            // Player's key
+            ImageButton masterIcon = new ImageButton("key.png");
+            playerPanel.add(masterIcon.getButton());
+            playersPanel.add(playerPanel);
+        }
+        infoPanel.add(playersPanel);
+       
+        // Button start
+        ImageButton startButton = new ImageButton("button-start.png");
+        infoPanel.add(startButton.getButton());
+       
+        // Panel board
+        TransparentPanel boardPanel = new TransparentPanel();
+        boardPanel.setLayout(new GridLayout(20,20,0,0));
+        boardPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        boardPanel.setPreferredSize(new Dimension(700, 700));
+        for (int i =0; i<(20*20); i++){
+            final Label label = new Label(" ");
+            label.setBorder(BorderFactory.createLineBorder(Color.decode("#00B0FF")));
+            boardPanel.add(label);
+        }
+       
+       // Panel Element
+       TransparentPanel elementPanel = new TransparentPanel();
+       elementPanel.setLayout(new GridBagLayout());
+       GridBagConstraints c = new GridBagConstraints();
+       c.gridx = 0;
+       c.gridy = 0;
+       c.weightx = 0.5;
+       elementPanel.add(infoPanel, c);
+       c = new GridBagConstraints();
+       c.gridx = 1;
+       c.gridy = 0;
+       c.weightx = 0.5;
+       c.insets = new Insets(0,150,0,150);
+       elementPanel.add(boardPanel, c);
        
        // Finalisasi
        setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
-       add(elementPanel);
+       add(elementPanel, Component.LEFT_ALIGNMENT);
     }
     
     // Getter

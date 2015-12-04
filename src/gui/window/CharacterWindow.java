@@ -16,12 +16,17 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 /**
  * Kelas window untuk memilih character
  */
 public class CharacterWindow extends BackgroundPanel {
+    // Atribut
+    private ImageButton yesButton;
+    private ImageButton noButton;
+    
     // Konstruktor
     public CharacterWindow() {
         // Background
@@ -52,11 +57,11 @@ public class CharacterWindow extends BackgroundPanel {
         // Panel decision
         TransparentPanel decisionPanel = new TransparentPanel();
         decisionPanel.setLayout(new FlowLayout());
-        // Button yes
-        ImageButton noButton = new ImageButton("button-cross.png");
+        // Button no
+        noButton = new ImageButton("button-cross.png");
         decisionPanel.add(noButton.getButton());
         // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
+        yesButton = new ImageButton("button-check.png");
         decisionPanel.add(yesButton.getButton());
         
         // Finalisasi
@@ -65,5 +70,13 @@ public class CharacterWindow extends BackgroundPanel {
         elementPanel.add(decisionPanel);
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
+    }
+    
+    // Getter
+    public JButton getYesButton() {
+        return yesButton.getButton();
+    }
+    public JButton getNoButton() {
+        return noButton.getButton();
     }
 }

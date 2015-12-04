@@ -10,9 +10,16 @@
 package gui.page;
 
 import gui.element.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 /**
  * Kelas halaman menu
@@ -32,6 +39,7 @@ public class MenuPage extends BackgroundPanel {
         // Panel button
         TransparentPanel buttonPanel = new TransparentPanel();
         buttonPanel.setLayout(new GridLayout(1, 2, 1100, 0));
+        buttonPanel.setBorder(new EmptyBorder(0,0,35,0));
         // Button back
         backButton = new ImageButton("button-back.png");
         buttonPanel.add(backButton.getButton());
@@ -41,7 +49,7 @@ public class MenuPage extends BackgroundPanel {
         
         // Panel nickname dan menu
         TransparentPanel menuPanel = new TransparentPanel();
-        menuPanel.setLayout(new GridLayout(2,1,0,20));
+        menuPanel.setLayout(new GridLayout(2,1,0,30));
         // Label nickname
         nicknameLabel = new Label(nickname);
         menuPanel.add(nicknameLabel);
@@ -49,15 +57,29 @@ public class MenuPage extends BackgroundPanel {
         menuButton = new ImageButton("button-highscore.png");
         menuPanel.add(menuButton.getButton());
 
+        // Panel Room List
+        JPanel roomListPanel = new JPanel();
+        roomListPanel.setBackground(Color.decode("#16495A"));
+        roomListPanel.setOpaque(true);
+        roomListPanel.setBorder(new EmptyBorder(20,0,0,20));
+        roomListPanel.setLayout(new GridLayout(5,2,0,50)); // Ganti dengan ukuran room, baris: 5
+        for (int i=0; i<5; i++) {
+            String roomName = "Room " + i;
+            roomListPanel.add(new Label(roomName));
+            String roomMember = i + " people";
+            roomListPanel.add(new Label(roomMember));
+        }
+        
         // Finalisasi
         // Panel element
         TransparentPanel elementPanel = new TransparentPanel();
-        elementPanel.setLayout(null);
-        elementPanel.add(menuPanel);
-        elementPanel.add(buttonPanel);
+        elementPanel.setLayout(new BorderLayout(0,0));
+        elementPanel.add(buttonPanel, BorderLayout.PAGE_START);
+        elementPanel.add(menuPanel, BorderLayout.LINE_START);
+        elementPanel.add(roomListPanel, BorderLayout.CENTER);
         
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
-        add(buttonPanel);
+        add(elementPanel);
     }
     
     // Getter

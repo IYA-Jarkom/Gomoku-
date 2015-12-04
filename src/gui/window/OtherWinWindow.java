@@ -16,12 +16,16 @@ import gui.element.Label;
 import gui.element.TransparentPanel;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 /**
  * Kelas window untuk menampilkan pemenang yang bukan player sendiri
  */
 public class OtherWinWindow extends BackgroundPanel {
+    // Atribut
+    private ImageButton yesButton;
+    
     // Konstruktor
     public OtherWinWindow() {
         // Background
@@ -36,12 +40,17 @@ public class OtherWinWindow extends BackgroundPanel {
         Label winnerNameLabel = new Label("Nickname2", "white", 47);
         elementPanel.add(winnerNameLabel);
         // Button yes
-        ImageButton yesButton = new ImageButton("button-check.png");
+        yesButton = new ImageButton("button-check.png");
         elementPanel.add(yesButton.getButton());
        
         // Finalisasi
         elementPanel.setBorder(new EmptyBorder(320,0,0,0));
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
+    }
+    
+    // Getter
+    public JButton getYesButton() {
+        return yesButton.getButton();
     }
 }
