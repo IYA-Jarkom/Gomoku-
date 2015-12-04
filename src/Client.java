@@ -91,47 +91,50 @@ public class Client {
             //System.out.println(recListRoom.getState());
             //System.out.println(recListRoom.isAlive());
             //KASIH ROOM NUMER KE SERVER   
-            roomNumber = scan.nextInt() - 1;
+            roomNumber = Integer.parseInt(scan.nextLine()) - 1;
             objectToServer.writeObject(roomNumber);
+            if (roomNumber < 0) {
+                System.out.print("Input nama room :");
+                objectToServer.writeObject(scan.nextLine());
+            }
+            
             recListRoom.stop();
             //System.out.println(recListRoom.getState());
             // recListRoom.join(1);
            // System.out.println(recListRoom.getState());
             //System.out.println("asasass");
             //System.out.println(recListRoom.isAlive());
+            
             // User masuk ke room
             ArrayList<Room> newListRoom = new ArrayList((ArrayList<Room>) objectFromServer.readObject());
-             System.out.println(newListRoom.size());
             listRoom = new ArrayList<Room>(newListRoom);
-             System.out.println(listRoom.size());
             boolean isGameStart = false;
+            
+            // Menerima data Player dan Room yang ditempati Player, dari server
+            player = (Player)objectFromServer.readObject();
+            room = (Room)objectFromServer.readObject();
 
             do {
                 if (roomNumber < 0) {  // Player adalah master di room
                     System.out.println("1 to start the game");
                     //System.out.println("2 to exit the room");
                     System.out.print("Input: ");
-                    int roomMenu = scan.nextInt();
-                    System.out.println("1");
+                    int roomMenu = Integer.parseInt(scan.nextLine());
                     if (roomMenu == 1) {
-                        System.out.println("2");
                         objectToServer.writeObject(true);
-                        System.out.println("3");
-                        int i;
-                        for (i = 0; i < listRoom.size(); i++) {
-                            if (listRoom.get(i).getMaster().getNickName().equals(player.getNickName())) {
-                                break;
-                            }
-                        }
-                         System.out.println(listRoom.size());
-                        System.out.println("4" + i + listRoom.get(0).getPlayers().size());
-                        for (i = 0; i < listRoom.get(0).getPlayers().size(); i++) {
-                            System.out.println(listRoom.get(0).getPlayers().get(i).getNickName());
-                        }
-                        objectToServer.writeObject(listRoom.get(i-1).getPlayers());
-                        System.out.println("5");
+                        
+//                        int i;
+//                        for (i = 0; i < listRoom.size(); i++) {
+//                            if (listRoom.get(i).getMaster().getNickName().equals(player.getNickName())) {
+//                                break;
+//                            }
+//                        }
+//                        for (i = 0; i < listRoom.get(0).getPlayers().size(); i++) {
+//                            System.out.println(listRoom.get(0).getPlayers().get(i).getNickName());
+//                        }
+//                        objectToServer.writeObject(listRoom.get(i-1).getPlayers());
+                        
                         isGameStart = (boolean) objectFromServer.readObject();
-                        System.out.println("6");
                         if (isGameStart) {
                             System.out.println("Game Start");
                         }
@@ -154,12 +157,12 @@ public class Client {
                         // Player memilih posisi board diinginkan
                         System.out.println("Insert board position");
                         System.out.print("x : ");
-                        x = scan.nextInt();
+                        x = Integer.parseInt(scan.nextLine());
                         System.out.print("y : ");
-                        y = scan.nextInt();
+                        y = Integer.parseInt(scan.nextLine());
                         position.setLocation(x, y);
 
-                        if (room.getBoard().getBoardElement(position) != -1) {  // Posisi board belum terisi
+                        if (room.getBoard().getBoardElement(position) == -1) {  // Posisi board belum terisi
                             // Mengirim posisi board yang dipilih player ke server
                             objectToServer.writeObject(position);
                             isPlayerTurn = false;

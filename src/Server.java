@@ -55,7 +55,6 @@ public class Server {
 
                     while(!lockSendListRoom.get(id)) ;
                         try {
-                            System.out.println("send!");
                             oos.writeObject(listRoom);
                             lockSendListRoom.set(id, false);
                         } catch (IOException ex) {
@@ -102,20 +101,23 @@ public class Server {
                     listRoom.get(roomNumber).addPlayers(player);
                     player.setRoomName(roomNumber);
                 } else {
-                    Room newRoom = new Room(player.getNickName(), player);
+                    Room newRoom = new Room((String)objectFromClient.readObject(), player);
                     newRoom.addPlayers(player);
                     listRoom.add(newRoom);
                     player.setRoomName(listRoom.size() - 1);
                 }
-
                 
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                 }
                 sendListRoom.stop();
-                System.out.println(listRoom.size());
                 objectToClient.reset();
                 objectToClient.writeObject(listRoom);
+                
+                // Mengirim data Player dan Room yang ditempati Player, ke client
+                objectToClient.writeObject(player);
+                objectToClient.writeObject(listRoom.get(player.getRoomID()));
+                
                 // User sudah berada di room
                 do {
                     if (roomNumber < 0) {
@@ -123,10 +125,11 @@ public class Server {
                         if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 3)) {
                             // Game boleh dimulai
                             objectToClient.writeObject(true);
-                            ArrayList<Player> listRoomPlayer = new ArrayList((ArrayList<Player>) objectFromClient.readObject());
-                            for (int j = 0; j < listRoomPlayer.size(); j++) {
-                                lockPlay.set(listRoomPlayer.get(j).getClientID(), true);
-                            }
+                            
+//                            ArrayList<Player> listRoomPlayer = new ArrayList((ArrayList<Player>) objectFromClient.readObject());
+//                            for (int j = 0; j < listRoomPlayer.size(); j++) {
+//                                lockPlay.set(listRoomPlayer.get(j).getClientID(), true);
+//                            }
                             listRoom.get(player.getRoomID()).setTurn(player);
                             listRoom.get(player.getRoomID()).isGameStart(true);
                         } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 3)) {
@@ -135,9 +138,10 @@ public class Server {
                         }
                     } //jika bukan master
                     else {
-                        while (lockPlay.get(id) == false);
-                        objectToClient.writeObject(true);
-                        lockPlay.set(id, false);
+                        //while (lockPlay.get(id) == false);
+                        objectToClient.reset();
+                        objectToClient.writeObject(false);
+                        //lockPlay.set(id, false);
                     }
                 } while (!listRoom.get(player.getRoomID()).isGameStart());
 
@@ -163,6 +167,7 @@ public class Server {
                         // Belum giliran player
                         objectToClient.writeObject(false);
                     }
+                    objectToClient.writeObject(listRoom.get(player.getRoomID()).isGameStart());
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
