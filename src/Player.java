@@ -26,6 +26,7 @@ public class Player implements Serializable{
     private int winNumber;
     private int loseNumber;
     private int roomID;
+    private int clientID;
     //private String ipAddress;
     //private int port;
     
@@ -66,6 +67,9 @@ public class Player implements Serializable{
     public int getRoomID() {
         return roomID;
     }
+    public int getClientID() {
+        return clientID;
+    }
    /* public String getIpAddress() {
         return ipAddress;
     }
@@ -85,6 +89,9 @@ public class Player implements Serializable{
     }
     public void setRoomName(int _roomID) {
         roomID = _roomID;
+    }
+    public void setClientName(int _clientID) {
+        clientID = _clientID;
     }
     /*public void setIpAddress(String _ipAddress) {
         ipAddress = _ipAddress;

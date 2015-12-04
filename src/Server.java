@@ -22,6 +22,7 @@ public class Server {
 
     // Atribut
     static public ArrayList<Boolean> lockSendListRoom = new ArrayList();
+    static public ArrayList<Boolean> lockPlay = new ArrayList();
     static public ServerSocket server;
     static public ArrayList<Room> listRoom = new ArrayList();
     static public int clientNumber = 0;
@@ -41,25 +42,26 @@ public class Server {
 
             public int id;
             public Socket socket;
+            public ObjectOutputStream oos;
 
-            public SendListRoom(int id, Socket socket) {
+            public SendListRoom(int id, Socket socket,ObjectOutputStream _oos) {
                 this.id = id;
                 this.socket = socket;
+                oos=_oos;
             }
 
             public void run() {
                 while (!Thread.currentThread().isInterrupted()) {
 
-                    if (lockSendListRoom.get(id)) {
+                    while(!lockSendListRoom.get(id)) ;
                         try {
                             System.out.println("send!");
-                            ObjectOutputStream objectToClient = new ObjectOutputStream(socket.getOutputStream());
-                            objectToClient.writeObject(listRoom);
+                            oos.writeObject(listRoom);
                             lockSendListRoom.set(id, false);
                         } catch (IOException ex) {
                             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    }
+                    
                 }
             }
         }
@@ -80,14 +82,14 @@ public class Server {
                 //TUNGGU NAMA DARI CLIENT
                 objectFromClient = new ObjectInputStream(socket.getInputStream());
                 String name = (String) objectFromClient.readObject();
-                System.out.println(name + " has been connected" +id);
+                System.out.println(name + " has been connected");
                 player = new Player(name, 0, 0);
-
+                player.setClientName(id);
                 //KASIH LISTROOM KE CLIENT TERSEBUT
                 objectToClient.writeObject(listRoom);
                 lockSendListRoom.set(id, false);
-                Thread sendListRoom = new Thread(new SendListRoom(id, socket));
-                sendListRoom.start();
+                //Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
+                //sendListRoom.start();
 
                 //DAPET ROOM YANG DIINGINKAN USER
                 int roomNumber;
@@ -102,15 +104,15 @@ public class Server {
                     newRoom.addPlayers(player);
                     listRoom.add(newRoom);
                     player.setRoomName(listRoom.size() - 1);
-                    System.out.println(listRoom.size());
                 }
 
-                sendListRoom.stop();
+                
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
-                    System.out.println(lockSendListRoom.get(i));
                 }
-
+                //sendListRoom.stop();
+                System.out.println(listRoom.size());
+               // objectToClient.writeObject(listRoom);
                 // User sudah berada di room
                 do {
                     if (roomNumber < 0) {
@@ -118,12 +120,21 @@ public class Server {
                         if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 3)) {
                             // Game boleh dimulai
                             objectToClient.writeObject(true);
+                            ArrayList<Player> listRoomPlayer = new ArrayList((ArrayList<Player>) objectFromClient.readObject());
+                            for (int j = 0; j < listRoomPlayer.size(); j++) {
+                                lockPlay.set(listRoomPlayer.get(j).getClientID(), true);
+                            }
                             listRoom.get(player.getRoomID()).setTurn(player);
                             listRoom.get(player.getRoomID()).isGameStart(true);
                         } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 3)) {
                             // Game belum boleh dimulai
                             objectToClient.writeObject(false);
                         }
+                    } //jika bukan master
+                    else {
+                        while (lockPlay.get(id) == false);
+                        objectToClient.writeObject(true);
+                        lockPlay.set(id, false);
                     }
                 } while (!listRoom.get(player.getRoomID()).isGameStart());
 
@@ -164,6 +175,7 @@ public class Server {
             Socket serversocket = server.accept();
             Boolean bool = false;
             lockSendListRoom.add(bool);
+            lockPlay.add(bool);
             Thread t = new Thread(new ClientController(serversocket, clientNumber));
             clientNumber++;
             t.start();
