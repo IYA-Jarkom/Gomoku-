@@ -86,8 +86,8 @@ public class Client {
                 int idroom = i + 1;
                 System.out.println(idroom + ". " + listRoom.get(i).getName());
             }
-            Thread recListRoom = new Thread(new RecListRoom());
-            recListRoom.start();
+//            Thread recListRoom = new Thread(new RecListRoom());
+//            recListRoom.start();
             //System.out.println(recListRoom.getState());
             //System.out.println(recListRoom.isAlive());
             //KASIH ROOM NUMER KE SERVER   
@@ -98,7 +98,7 @@ public class Client {
                 objectToServer.writeObject(scan.nextLine());
             }
             
-            recListRoom.stop();
+            //recListRoom.stop();
             //System.out.println(recListRoom.getState());
             // recListRoom.join(1);
            // System.out.println(recListRoom.getState());
@@ -111,7 +111,7 @@ public class Client {
             boolean isGameStart = false;
             
             // Menerima data Player dan Room yang ditempati Player, dari server
-            player = (Player)objectFromServer.readObject();
+//            player = (Player)objectFromServer.readObject();
             room = (Room)objectFromServer.readObject();
 
             do {
@@ -142,6 +142,7 @@ public class Client {
                 } else {    // Player bukan master di room
                     System.out.println("Wait for the Master to start the game");
                     isGameStart = (boolean) objectFromServer.readObject();
+                    System.out.println("Game Start");
                 }
             } while (!isGameStart);
 
@@ -161,10 +162,12 @@ public class Client {
                         System.out.print("y : ");
                         y = Integer.parseInt(scan.nextLine());
                         position.setLocation(x, y);
-
-                        if (room.getBoard().getBoardElement(position) == -1) {  // Posisi board belum terisi
-                            // Mengirim posisi board yang dipilih player ke server
-                            objectToServer.writeObject(position);
+                        
+                        // Mengirim posisi board ke server
+                        objectToServer.writeObject(position);
+                        if ((boolean) objectFromServer.readObject()) {  // Posisi board belum terisi
+                            System.out.println("Pengisian board berhasil");
+                            room = (Room)objectFromServer.readObject();
                             isPlayerTurn = false;
                         } else {
                             System.out.println("Posisi board sudah terisi. Pilih posisi lain");

@@ -88,8 +88,8 @@ public class Server {
                 objectToClient.writeObject(listRoom);
                 objectToClient.reset();
                 lockSendListRoom.set(id, false);
-                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
-                sendListRoom.start();
+//                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
+//                sendListRoom.start();
 
                 //DAPET ROOM YANG DIINGINKAN USER
                 int roomNumber;
@@ -110,15 +110,16 @@ public class Server {
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                 }
-                sendListRoom.stop();
+                //sendListRoom.stop();
                 objectToClient.reset();
                 objectToClient.writeObject(listRoom);
                 
                 // Mengirim data Player dan Room yang ditempati Player, ke client
-                objectToClient.writeObject(player);
+//                objectToClient.writeObject(player);
                 objectToClient.writeObject(listRoom.get(player.getRoomID()));
                 
                 // User sudah berada di room
+                listRoom.get(player.getRoomID()).isGameStart(false);
                 do {
                     if (roomNumber < 0) {
                         boolean isGameStart = (boolean) objectFromClient.readObject();
@@ -139,8 +140,10 @@ public class Server {
                     } //jika bukan master
                     else {
                         //while (lockPlay.get(id) == false);
-                        objectToClient.reset();
-                        objectToClient.writeObject(false);
+                        while (!listRoom.get(player.getRoomID()).isGameStart()) {
+                            System.out.print("");
+                        }
+                        objectToClient.writeObject(true);
                         //lockPlay.set(id, false);
                     }
                 } while (!listRoom.get(player.getRoomID()).isGameStart());
@@ -152,17 +155,24 @@ public class Server {
                     if (listRoom.get(player.getRoomID()).turn().equals(player)) {
                         // Giliran player
                         objectToClient.writeObject(true);
+                        // Menerima posisi board dari client
                         position = (Point) objectFromClient.readObject();
-                        // Mengubah isi board
-                        listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
-
-                        // Mengganti giliran
-                        if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
-                            turnIndex = 0;
+                        if (listRoom.get(player.getRoomID()).getBoard().getBoardElement(position) == -1) {
+                            // Mengubah isi board
+                            listRoom.get(player.getRoomID()).getBoard().setBoardElement(position, turnIndex);
+                            objectToClient.writeObject(true);
+                            objectToClient.writeObject(listRoom.get(player.getRoomID()));
+                            
+                            // Mengganti giliran
+                            if ((turnIndex + 1) >= listRoom.get(player.getRoomID()).countPlayers()) {
+                                turnIndex = 0;
+                            } else {
+                                turnIndex++;
+                            }
+                            listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(turnIndex));
                         } else {
-                            turnIndex++;
+                            objectToClient.writeObject(false);
                         }
-                        listRoom.get(player.getRoomID()).setTurn(listRoom.get(player.getRoomID()).getPlayer(turnIndex));
                     } else {
                         // Belum giliran player
                         objectToClient.writeObject(false);
