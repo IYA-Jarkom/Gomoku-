@@ -54,12 +54,13 @@ public class Client {
 
     public static void main(String args[]) throws IOException, ClassNotFoundException {
         try {
-
-            Room room = null;
-            Player player;
-
-            clientSocket = new Socket("localhost", 2000);
             Scanner scan = new Scanner(System.in);
+
+            Room room;
+            Player player;
+            System.out.print("Input server IP hostname : ");
+            String host=scan.nextLine();
+            clientSocket = new Socket(host, 2000);
 
             //SEND NAMA TO SERVER
             objectToServer = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -112,7 +113,7 @@ public class Client {
             
             // Menerima data Player dan Room yang ditempati Player, dari server
 //            player = (Player)objectFromServer.readObject();
-            room = (Room)objectFromServer.readObject();
+            room = new Room((Room)objectFromServer.readObject());
 
             do {
                 if (roomNumber < 0) {  // Player adalah master di room
@@ -166,7 +167,7 @@ public class Client {
                         objectToServer.writeObject(position);
                         if ((boolean) objectFromServer.readObject()) {  // Posisi board belum terisi
                             System.out.println("Pengisian board berhasil");
-                            room = (Room)objectFromServer.readObject();
+                            room = new Room((Room)objectFromServer.readObject());
                             
                             // Mengecek apakah client menang
                             if ((boolean) objectFromServer.readObject()) {
@@ -181,6 +182,8 @@ public class Client {
                     isGameStart = (boolean) objectFromServer.readObject();
                 } while (isGameStart);
                 System.out.println("Game selesai");
+                listRoom = new ArrayList<Room>(new ArrayList((ArrayList<Room>) objectFromServer.readObject()));
+                listRoom.get(0).getBoard().display();
             }
         } catch (Exception e) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
