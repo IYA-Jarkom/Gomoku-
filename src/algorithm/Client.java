@@ -28,7 +28,7 @@ public class Client {
     static public ObjectInputStream objectFromServer;
     static public ObjectOutputStream objectToServer;
     static public int clientRoom;
-    private static class RecListRoom
+    public static class RecListRoom
             extends Thread {
 
         public RecListRoom() {
@@ -99,12 +99,6 @@ public class Client {
                 }
 
                 recListRoom.stop();
-                //System.out.println(recListRoom.getState());
-                // recListRoom.join(1);
-               // System.out.println(recListRoom.getState());
-                //System.out.println("asasass");
-                //System.out.println(recListRoom.isAlive());
-
                 // User masuk ke room
                 ArrayList<Room> newListRoom = new ArrayList((ArrayList<Room>) objectFromServer.readObject());
                 listRoom = new ArrayList<Room>(newListRoom);
@@ -122,17 +116,6 @@ public class Client {
                         int roomMenu = Integer.parseInt(scan.nextLine());
                         if (roomMenu == 1) {
                             objectToServer.writeObject(true);
-
-    //                        int i;
-    //                        for (i = 0; i < listRoom.size(); i++) {
-    //                            if (listRoom.get(i).getMaster().getNickName().equals(player.getNickName())) {
-    //                                break;
-    //                            }
-    //                        }
-    //                        for (i = 0; i < listRoom.get(0).getPlayers().size(); i++) {
-    //                            System.out.println(listRoom.get(0).getPlayers().get(i).getNickName());
-    //                        }
-    //                        objectToServer.writeObject(listRoom.get(i-1).getPlayers());
 
                             isGameStart = (boolean) objectFromServer.readObject();
                             if (isGameStart) {

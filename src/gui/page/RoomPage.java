@@ -29,6 +29,9 @@ import javax.swing.JPanel;
 public class RoomPage extends BackgroundPanel {
     // Atribut
     private ImageButton backButton;
+    private ImageButton startButton;
+    private Label[][] board;
+    
     // Konstruktor
     public RoomPage() {
        // Background
@@ -67,18 +70,22 @@ public class RoomPage extends BackgroundPanel {
         infoPanel.add(playersPanel);
        
         // Button start
-        ImageButton startButton = new ImageButton("button-start.png");
+        startButton = new ImageButton("button-start.png");
         infoPanel.add(startButton.getButton());
        
         // Panel board
+        board = new Label[20][20];
         TransparentPanel boardPanel = new TransparentPanel();
         boardPanel.setLayout(new GridLayout(20,20,0,0));
         boardPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         boardPanel.setPreferredSize(new Dimension(700, 700));
-        for (int i =0; i<(20*20); i++){
-            final Label label = new Label(" ");
-            label.setBorder(BorderFactory.createLineBorder(Color.decode("#00B0FF")));
-            boardPanel.add(label);
+        for (int i=0; i<20; i++){
+            for (int j=0; j<20; j++) {
+                final Label label = new Label(" ", "green", 30);
+                label.setBorder(BorderFactory.createLineBorder(Color.decode("#00B0FF")));
+                board[i][j] = label;
+                boardPanel.add(label);
+            }
         }
        
        // Panel Element
@@ -104,5 +111,11 @@ public class RoomPage extends BackgroundPanel {
     // Getter
     public JButton getBackButton() {
         return backButton.getButton();
+    }
+    public JButton getStartButton() {
+        return startButton.getButton();
+    }
+    public Label[][] getBoard() {
+        return board;
     }
 }

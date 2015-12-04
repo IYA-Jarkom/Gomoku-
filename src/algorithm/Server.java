@@ -7,12 +7,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  * TUGAS BESAR 2 IF3130 Jaringan Komputer -RETURN OF POI-
  *
@@ -124,6 +118,7 @@ public class Server {
                 objectToClient.writeObject(listRoom);
 
                 // Mengirim data Player dan Room yang ditempati Player, ke client
+                objectToClient.writeObject(player.getNickName());
                 objectToClient.writeObject(player.getRoomID());
 
                 while (true) {
@@ -135,11 +130,6 @@ public class Server {
                             if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() >= 1)) {
                                 // Game boleh dimulai
                                 objectToClient.writeObject(true);
-
-    //                            ArrayList<Player> listRoomPlayer = new ArrayList((ArrayList<Player>) objectFromClient.readObject());
-    //                            for (int j = 0; j < listRoomPlayer.size(); j++) {
-    //                                lockPlay.set(listRoomPlayer.get(j).getClientID(), true);
-    //                            }
                                 listRoom.get(player.getRoomID()).setTurn(player);
                                 listRoom.get(player.getRoomID()).isGameStart(true);
                             } else if (isGameStart && (listRoom.get(player.getRoomID()).countPlayers() < 1)) {
@@ -148,16 +138,15 @@ public class Server {
                             }
                         } //jika bukan master
                         else {
-                            //while (lockPlay.get(id) == false);
                             while (!listRoom.get(player.getRoomID()).isGameStart()) {
                                 System.out.print("");
                             }
                             objectToClient.writeObject(true);
-                            //lockPlay.set(id, false);
                         }
                     } while (!listRoom.get(player.getRoomID()).isGameStart());
 
                     // Game dimulai
+                    objectToClient.writeObject(listRoom);
                     while (listRoom.get(player.getRoomID()).isGameStart()) {
                         if (listRoom.get(player.getRoomID()).turn().equals(player)) {
                             // Giliran player

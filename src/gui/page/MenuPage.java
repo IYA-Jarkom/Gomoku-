@@ -9,6 +9,8 @@
  */
 package gui.page;
 
+import static algorithm.Client.listRoom;
+import algorithm.Room;
 import gui.element.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,6 +18,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -31,9 +34,10 @@ public class MenuPage extends BackgroundPanel {
     private Label nicknameLabel;
     private ImageButton highScoreButton;
     private JPanel roomListPanel;
+    private ArrayList<Label> labelArray;
     
     // Konstruktor
-    public MenuPage(String nickname) {
+    public MenuPage(String nickname, ArrayList<Room> listRoom) {
         // Background
         super("bg-menu.jpg");
         
@@ -64,10 +68,14 @@ public class MenuPage extends BackgroundPanel {
         roomListPanel.setOpaque(true);
         roomListPanel.setBorder(new EmptyBorder(20,0,0,20));
         roomListPanel.setLayout(new GridLayout(5,2,0,50)); // Ganti dengan ukuran room, baris: 5
-        for (int i=0; i<5; i++) {
-            String roomName = "Room " + i;
-            roomListPanel.add(new Label(roomName));
-            String roomMember = i + " people";
+        
+        for (int i = 0; i < listRoom.size(); i++) {
+            int idroom = i + 1;
+            String roomName = idroom + ".   " + listRoom.get(i).getName();
+            Label roomNameLabel = new Label(roomName);
+            labelArray.add(roomNameLabel);
+            roomListPanel.add(roomNameLabel);
+            String roomMember = listRoom.get(i).countPlayers() + " people";
             roomListPanel.add(new Label(roomMember));
         }
         
@@ -95,5 +103,8 @@ public class MenuPage extends BackgroundPanel {
     }
     public JButton getHighScoreButton() {
         return highScoreButton.getButton();
+    }
+    public ArrayList<Label> getLabelArray() {
+        return labelArray;
     }
 }
