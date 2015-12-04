@@ -86,21 +86,21 @@ public class Client {
                 int idroom = i + 1;
                 System.out.println(idroom + ". " + listRoom.get(i).getName());
             }
-            //Thread recListRoom = new Thread(new RecListRoom());
-            //recListRoom.start();
+            Thread recListRoom = new Thread(new RecListRoom());
+            recListRoom.start();
             //System.out.println(recListRoom.getState());
             //System.out.println(recListRoom.isAlive());
             //KASIH ROOM NUMER KE SERVER   
             roomNumber = scan.nextInt() - 1;
             objectToServer.writeObject(roomNumber);
-            //recListRoom.stop();
+            recListRoom.stop();
             //System.out.println(recListRoom.getState());
             // recListRoom.join(1);
            // System.out.println(recListRoom.getState());
             //System.out.println("asasass");
             //System.out.println(recListRoom.isAlive());
             // User masuk ke room
-            ArrayList<Room> newListRoom = new ArrayList<>((ArrayList<Room>) objectFromServer.readObject());
+            ArrayList<Room> newListRoom = new ArrayList((ArrayList<Room>) objectFromServer.readObject());
              System.out.println(newListRoom.size());
             listRoom = new ArrayList<Room>(newListRoom);
              System.out.println(listRoom.size());
@@ -128,7 +128,7 @@ public class Client {
                         for (i = 0; i < listRoom.get(0).getPlayers().size(); i++) {
                             System.out.println(listRoom.get(0).getPlayers().get(i).getNickName());
                         }
-                        objectToServer.writeObject(listRoom.get(i).getPlayers());
+                        objectToServer.writeObject(listRoom.get(i-1).getPlayers());
                         System.out.println("5");
                         isGameStart = (boolean) objectFromServer.readObject();
                         System.out.println("6");

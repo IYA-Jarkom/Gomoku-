@@ -87,14 +87,16 @@ public class Server {
                 player.setClientName(id);
                 //KASIH LISTROOM KE CLIENT TERSEBUT
                 objectToClient.writeObject(listRoom);
+                objectToClient.reset();
                 lockSendListRoom.set(id, false);
-                //Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
-                //sendListRoom.start();
+                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
+                sendListRoom.start();
 
                 //DAPET ROOM YANG DIINGINKAN USER
                 int roomNumber;
 
                 roomNumber = (Integer) objectFromClient.readObject();
+             
 
                 if (roomNumber >= 0) {
                     listRoom.get(roomNumber).addPlayers(player);
@@ -110,9 +112,10 @@ public class Server {
                 for (int i = 0; i < lockSendListRoom.size(); i++) {
                     lockSendListRoom.set(i, true);
                 }
-                //sendListRoom.stop();
+                sendListRoom.stop();
                 System.out.println(listRoom.size());
-               // objectToClient.writeObject(listRoom);
+                objectToClient.reset();
+                objectToClient.writeObject(listRoom);
                 // User sudah berada di room
                 do {
                     if (roomNumber < 0) {
