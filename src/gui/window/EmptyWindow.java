@@ -15,6 +15,9 @@ import gui.element.Label;
 import gui.element.TransparentPanel;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javafx.scene.paint.Color;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

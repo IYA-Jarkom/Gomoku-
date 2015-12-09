@@ -1,7 +1,7 @@
 /*
  * TUGAS BESAR 2
  * IF3130 Jaringan Komputer
- * - RETURN OF POI -
+ * -RETURN OF POI-
  * 
  * @author Irene Wiliudarsan - 13513002
  * @author Yoga Adrian Saputra - 13513030

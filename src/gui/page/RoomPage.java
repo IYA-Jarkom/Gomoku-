@@ -33,7 +33,7 @@ public class RoomPage extends BackgroundPanel {
     private Label[][] board;
     
     // Konstruktor
-    public RoomPage() {
+    public RoomPage(String roomName) {
        // Background
        super("bg-room.jpg");
        
@@ -46,7 +46,6 @@ public class RoomPage extends BackgroundPanel {
        // Button back
        backButton = new ImageButton("button-back.png");
        headerPanel.add(backButton.getButton());
-       String roomName = "Ruanganku";
        headerPanel.add(new Label(roomName));
        infoPanel.add(headerPanel);
        

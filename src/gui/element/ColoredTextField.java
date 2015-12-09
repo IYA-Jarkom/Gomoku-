@@ -17,7 +17,6 @@ import javax.swing.JTextField;
 
 /**
  * Kelas TextField dengan border melingkar dan berwarna hijau
- * @author User
  */
 public class ColoredTextField extends JTextField {
     // Atribut
