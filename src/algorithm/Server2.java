@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +45,12 @@ public class Server2 {
         }
 
         public void Parse(String req) {
+            Scanner scan=new Scanner(req);
+            String command=scan.next();//ambil kata 1 1
+            if (command.equals("create-room")){
+                //listRoom.add(new Room())
+            }
+            //if lain lainnya
             //isi prosesnya disini
         }
 
