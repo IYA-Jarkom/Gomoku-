@@ -54,7 +54,7 @@ public class Server2 {
             //isi prosesnya disini
         }
 
-        void SendToServer(String msg) throws Exception {
+        void SendToClient(String msg) throws Exception {
             //create output stream attached to socket
             PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             //send msg to server
@@ -77,7 +77,7 @@ public class Server2 {
 
     public void sendToSpesificCLient(String str,int x) throws Exception{
         //untuk kirim move dari 1 client ke semua client dalam room
-        listClient.get(x).SendToServer(str);
+        listClient.get(x).SendToClient(str);
     }
     
     
@@ -98,8 +98,11 @@ public class Server2 {
         server = new ServerSocket(2000);
         while (true) {
             Socket socket = server.accept();
-            Thread t = new Thread(new ClientController(socket));
+            ClientController clientcontroller=new ClientController(socket);
+            
+            listClient.add(clientcontroller);
             clientNumber++;
+            Thread t = new Thread(clientcontroller);
             t.start();
         }
     }
