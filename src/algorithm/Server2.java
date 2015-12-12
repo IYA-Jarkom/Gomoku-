@@ -29,7 +29,8 @@ public class Server2 {
 
     static public ServerSocket server;
     static public ArrayList<Room> listRoom = new ArrayList();
-    static public ArrayList<ClientController> listClient= new ArrayList();
+    static public ArrayList<Player> listPlayer = new ArrayList();
+    static public ArrayList<ClientController> listClient = new ArrayList();
     static public int clientNumber = 0;
 
     // Kelas
@@ -38,6 +39,8 @@ public class Server2 {
 
         public Socket socket;
         public int idClient;
+        public int idPlayer;
+        public int idRoom;
 
         public ClientController(Socket clientSocket) {
             this.socket = clientSocket;
@@ -45,14 +48,30 @@ public class Server2 {
         }
 
         public void Parse(String req) throws Exception {
-            Scanner scan=new Scanner(req);
-            String command=scan.next();//ambil kata 1 1
-            if (command.equals("create-room")){
-                //listRoom.add(new Room())
-                SendToClient("command untuk create room");
-            }
-            else{
-                SendToClient("tidak ada command seperti itu");
+            Scanner scan = new Scanner(req);
+            String command = scan.next();//ambil kata 1 1
+            if (command.equals("create-room")) {
+                listRoom.add(new Room(scan.next(), listPlayer.get(idPlayer)));
+                listRoom.get(listRoom.size() - 1).addPlayers(listPlayer.get(idPlayer));
+                idRoom = listRoom.size() - 1;
+                SendToClient("success create-room");
+            } else if (command.equals("add-user")) {
+                idPlayer = listPlayer.size();
+                listPlayer.add(new Player(scan.next(), 0, 0));
+
+                SendToClient("success add-user");
+            } else if (command.equals("get-room")) {
+                String str = "List of Room \n";
+                for (int i = 0; i < listRoom.size(); i++) {
+                    str = str + i + ". " + listRoom.get(i).getName() + "\n";
+                }
+                SendToClient(str);
+            } else if (command.equals("join-room")) {
+                int id = Integer.parseInt(scan.next());
+                listRoom.get(id).addPlayers(listPlayer.get(idPlayer));
+            } else {
+
+                SendToClient("unknown command");
             }
             //if lain lainnya
             //isi prosesnya disini
@@ -71,6 +90,10 @@ public class Server2 {
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String request;
                 while ((request = inFromClient.readLine()) != null) {
+                    System.out.println(request);
+                    if (request.equals("")) {
+                        System.out.println("kosong");
+                    }
                     Parse(request);
                 }
             } catch (IOException ex) {
@@ -81,12 +104,11 @@ public class Server2 {
         }
     }
 
-    public void sendToSpesificCLient(String str,int x) throws Exception{
+    public void sendToSpesificCLient(String str, int x) throws Exception {
         //untuk kirim move dari 1 client ke semua client dalam room
         listClient.get(x).SendToClient(str);
     }
-    
-    
+
     /**
      * @param args the command line arguments
      */
@@ -105,8 +127,8 @@ public class Server2 {
         while (true) {
             Socket socket = server.accept();
             System.out.println("connected");
-            ClientController clientcontroller=new ClientController(socket);
-            
+            ClientController clientcontroller = new ClientController(socket);
+
             listClient.add(clientcontroller);
             clientNumber++;
             Thread t = new Thread(clientcontroller);
