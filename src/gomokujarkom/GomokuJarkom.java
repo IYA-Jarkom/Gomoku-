@@ -9,7 +9,7 @@ package gomokujarkom;
  * TUGAS BESAR 2
  * IF3130 Jaringan Komputer
  * -RETURN OF POI-
- * 
+ *
  * @author Irene Wiliudarsan - 13513002
  * @author Yoga Adrian Saputra - 13513030
  * @author Angela Lynn - 13513032
@@ -22,5 +22,5 @@ public class GomokuJarkom {
     public static void main(String[] args) {
         // TODO code application logic here
     }
-    
+
 }

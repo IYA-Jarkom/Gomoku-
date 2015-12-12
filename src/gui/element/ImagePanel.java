@@ -9,14 +9,14 @@
  */
 package gui.element;
 
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 /**
  * Kelas panel berisikan gambar
@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 public class ImagePanel extends JPanel {
     // Atribut
     private BufferedImage image;
-    
+
     // Konstruktor objek panel gambar dengan masukkan nama file gambar pada folder "asssets"
     public ImagePanel(String imageName) {
         try {
@@ -33,7 +33,7 @@ public class ImagePanel extends JPanel {
             Logger.getLogger(ImagePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

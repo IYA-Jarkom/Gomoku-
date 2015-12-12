@@ -9,13 +9,12 @@
  */
 package gui.element;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 /**
  * Kelas panel berisikan gambar background frame
@@ -31,9 +30,10 @@ public class BackgroundPanel extends JPanel {
             setBackgroundImage(bg);
         } catch (IOException e) {
             e.printStackTrace();
-        };
+        }
+        ;
     }
-    
+
     // Konstruktor objek panel dengan background fileName
     public BackgroundPanel(String fileName) {
         try {
@@ -41,9 +41,10 @@ public class BackgroundPanel extends JPanel {
             setBackgroundImage(bg);
         } catch (IOException e) {
             e.printStackTrace();
-        };
+        }
+        ;
     }
-    
+
     // Method
     @Override
     public Dimension getPreferredSize() {

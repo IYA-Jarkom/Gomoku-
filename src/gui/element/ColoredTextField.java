@@ -9,18 +9,15 @@
  */
 package gui.element;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import javax.swing.BorderFactory;
-import javax.swing.JTextField;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Kelas TextField dengan border melingkar dan berwarna hijau
  */
 public class ColoredTextField extends JTextField {
     // Atribut
-    
+
     // Kosntruktor
     public ColoredTextField() {
         super(10);
@@ -30,7 +27,7 @@ public class ColoredTextField extends JTextField {
         setFont(new Font("Jaapokki", Font.PLAIN, 30));
         setHorizontalAlignment(JTextField.CENTER);
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

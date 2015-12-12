@@ -9,8 +9,8 @@
  */
 package gui.element;
 
-import java.awt.Graphics;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Kelas panel transparant
@@ -20,7 +20,7 @@ public class TransparentPanel extends JPanel {
     public TransparentPanel() {
         setOpaque(false);
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

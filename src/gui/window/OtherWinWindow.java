@@ -10,14 +10,13 @@
 package gui.window;
 
 import gui.element.BackgroundPanel;
-import gui.element.ColoredTextField;
 import gui.element.ImageButton;
 import gui.element.Label;
 import gui.element.TransparentPanel;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import javax.swing.JButton;
+
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  * Kelas window untuk menampilkan pemenang yang bukan player sendiri
@@ -25,30 +24,30 @@ import javax.swing.border.EmptyBorder;
 public class OtherWinWindow extends BackgroundPanel {
     // Atribut
     private ImageButton yesButton;
-    
+
     // Konstruktor
     public OtherWinWindow() {
         // Background
         super("bg-other-win.png");
         super.setOpaque(false);
-       
+
         // Panel Element
         TransparentPanel elementPanel = new TransparentPanel();
-        elementPanel.setLayout(new GridLayout(2,1,0,50));
-        
+        elementPanel.setLayout(new GridLayout(2, 1, 0, 50));
+
         // Label nama pemenang
         Label winnerNameLabel = new Label("Nickname2", "white", 47);
         elementPanel.add(winnerNameLabel);
         // Button yes
         yesButton = new ImageButton("button-check.png");
         elementPanel.add(yesButton.getButton());
-       
+
         // Finalisasi
-        elementPanel.setBorder(new EmptyBorder(320,0,0,0));
+        elementPanel.setBorder(new EmptyBorder(320, 0, 0, 0));
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
     }
-    
+
     // Getter
     public JButton getYesButton() {
         return yesButton.getButton();

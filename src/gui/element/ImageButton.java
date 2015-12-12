@@ -9,20 +9,20 @@
  */
 package gui.element;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 
 /**
  * Kelas tombol dengan ikon gambar
  */
 public class ImageButton {
     JButton button;
+
     // Konstruktor objek tombol dengan icon gambar yang diberikan
     public ImageButton(String fileName) {
         try {
@@ -36,7 +36,7 @@ public class ImageButton {
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
     }
-    
+
     // Getter
     public JButton getButton() {
         return button;

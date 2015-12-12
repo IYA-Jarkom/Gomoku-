@@ -12,64 +12,66 @@ package gui.window;
 import gui.element.BackgroundPanel;
 import gui.element.ImageButton;
 import gui.element.TransparentPanel;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import javax.swing.JButton;
+
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Kelas window untuk memilih character
  */
 public class CharacterWindow extends BackgroundPanel {
     // Atribut
-    private ImageButton noButton;
-    
+    private ArrayList<ImageButton> characters;
+
     // Konstruktor
     public CharacterWindow() {
         // Background
         super("bg-character.png");
         super.setOpaque(false);
-       
+
         // Panel Element
         TransparentPanel elementPanel = new TransparentPanel();
-        elementPanel.setLayout(new GridLayout(2,1,100,20));
-        
+        elementPanel.setLayout(new GridLayout(2, 1, 100, 20));
+
         // Panel Role
         TransparentPanel characterPanel = new TransparentPanel();
-        characterPanel.setLayout(new GridLayout(2,3));
+        characterPanel.setLayout(new GridLayout(2, 3));
         // Button character
-        ImageButton penguinButton = new ImageButton("character-penguin.png");
+        characters = new ArrayList<>();
+        ImageButton penguinButton = new ImageButton("big-character-penguin.png");
         characterPanel.add(penguinButton.getButton());
-        ImageButton deerButton = new ImageButton("character-deer.png");
+        characters.add(penguinButton);
+        ImageButton deerButton = new ImageButton("big-character-deer.png");
         characterPanel.add(deerButton.getButton());
-        ImageButton birdButton = new ImageButton("character-bird.png");
+        characters.add(deerButton);
+        ImageButton birdButton = new ImageButton("big-character-bird.png");
         characterPanel.add(birdButton.getButton());
-        ImageButton dogButton = new ImageButton("character-dog.png");
+        characters.add(birdButton);
+        ImageButton dogButton = new ImageButton("big-character-dog.png");
         characterPanel.add(dogButton.getButton());
-        ImageButton duckButton = new ImageButton("character-duck.png");
+        characters.add(dogButton);
+        ImageButton duckButton = new ImageButton("big-character-duck.png");
         characterPanel.add(duckButton.getButton());
-        ImageButton rabbitButton = new ImageButton("character-rabbit.png");
+        characters.add(duckButton);
+        ImageButton rabbitButton = new ImageButton("big-character-rabbit.png");
         characterPanel.add(rabbitButton.getButton());
-        
-        // Panel decision
-        TransparentPanel decisionPanel = new TransparentPanel();
-        decisionPanel.setLayout(new FlowLayout());
-        // Button no
-        noButton = new ImageButton("button-cross.png");
-        decisionPanel.add(noButton.getButton());
-        
+        characters.add(rabbitButton);
+
         // Finalisasi
-        elementPanel.setBorder(new EmptyBorder(290,0,0,0));
+        elementPanel.setBorder(new EmptyBorder(290, 0, 0, 0));
         elementPanel.add(characterPanel);
-        elementPanel.add(decisionPanel);
         setBounds(0, 0, getPreferredSize().width, getPreferredSize().height);
         add(elementPanel);
     }
-    
+
     // Getter
-    public JButton getNoButton() {
-        return noButton.getButton();
+    public ArrayList<ImageButton> getCharacters() {
+        return characters;
+    }
+
+    public JButton getCharacterButton(int i) {
+        return characters.get(i).getButton();
     }
 }

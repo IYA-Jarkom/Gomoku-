@@ -1,8 +1,7 @@
 package algorithm;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.*;
-import static java.lang.Thread.sleep;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -28,6 +27,7 @@ public class Client {
     static public ObjectInputStream objectFromServer;
     static public ObjectOutputStream objectToServer;
     static public int clientRoom;
+
     public static class RecListRoom
             extends Thread {
 
@@ -60,7 +60,7 @@ public class Client {
             Scanner scan = new Scanner(System.in);
 
             System.out.print("Input server IP hostname : ");
-            String host=scan.nextLine();
+            String host = scan.nextLine();
             clientSocket = new Socket(host, 2000);
 
             //SEND NAMA TO SERVER
@@ -76,36 +76,36 @@ public class Client {
                     "You have been connected to server");
 
             objectFromServer = new ObjectInputStream(clientSocket.getInputStream());
-                //TERIMA LISTROOM DARI SERVER
-                int roomNumber;
+            //TERIMA LISTROOM DARI SERVER
+            int roomNumber;
 
-                listRoom = new ArrayList<Room>((ArrayList<Room>) objectFromServer.readObject());
-                System.out.println("Input Room Number to join the room or input 0 if you want to create a new room ");
-                System.out.println("LIST of ROOM");
-                for (int i = 0; i < listRoom.size(); i++) {
-                    int idroom = i + 1;
-                    System.out.println(idroom + ". " + listRoom.get(i).getName());
-                }
-                Thread recListRoom = new Thread(new RecListRoom());
-                recListRoom.start();
-                //System.out.println(recListRoom.getState());
-                //System.out.println(recListRoom.isAlive());
-                //KASIH ROOM NUMER KE SERVER   
-                roomNumber = Integer.parseInt(scan.nextLine()) - 1;
-                objectToServer.writeObject(roomNumber);
-                if (roomNumber < 0) {
-                    System.out.print("Input nama room : ");
-                    objectToServer.writeObject(scan.nextLine());
-                }
+            listRoom = new ArrayList<Room>((ArrayList<Room>) objectFromServer.readObject());
+            System.out.println("Input Room Number to join the room or input 0 if you want to create a new room ");
+            System.out.println("LIST of ROOM");
+            for (int i = 0; i < listRoom.size(); i++) {
+                int idroom = i + 1;
+                System.out.println(idroom + ". " + listRoom.get(i).getName());
+            }
+            Thread recListRoom = new Thread(new RecListRoom());
+            recListRoom.start();
+            //System.out.println(recListRoom.getState());
+            //System.out.println(recListRoom.isAlive());
+            //KASIH ROOM NUMER KE SERVER
+            roomNumber = Integer.parseInt(scan.nextLine()) - 1;
+            objectToServer.writeObject(roomNumber);
+            if (roomNumber < 0) {
+                System.out.print("Input nama room : ");
+                objectToServer.writeObject(scan.nextLine());
+            }
 
-                recListRoom.stop();
-                // User masuk ke room
-                ArrayList<Room> newListRoom = new ArrayList((ArrayList<Room>) objectFromServer.readObject());
-                listRoom = new ArrayList<Room>(newListRoom);
-                boolean isGameStart = false;
+            recListRoom.stop();
+            // User masuk ke room
+            ArrayList<Room> newListRoom = new ArrayList((ArrayList<Room>) objectFromServer.readObject());
+            listRoom = new ArrayList<Room>(newListRoom);
+            boolean isGameStart = false;
 
-                // Menerima data room yang ditempati client
-                clientRoom = (Integer)objectFromServer.readObject();
+            // Menerima data room yang ditempati client
+            clientRoom = (Integer) objectFromServer.readObject();
 
             while (true) {
                 do {
@@ -144,7 +144,7 @@ public class Client {
                             x = Integer.parseInt(scan.nextLine());
                             System.out.print("y : ");
                             y = Integer.parseInt(scan.nextLine());
-                            Point position = new Point(x,y);
+                            Point position = new Point(x, y);
 
                             // Mengirim posisi board ke server
                             objectToServer.writeObject(position);

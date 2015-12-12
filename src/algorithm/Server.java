@@ -1,6 +1,6 @@
 package algorithm;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -40,29 +40,29 @@ public class Server {
             public Socket socket;
             public ObjectOutputStream oos;
 
-            public SendListRoom(int id, Socket socket,ObjectOutputStream _oos) {
+            public SendListRoom(int id, Socket socket, ObjectOutputStream _oos) {
                 this.id = id;
                 this.socket = socket;
-                oos=_oos;
+                oos = _oos;
             }
 
             public void run() {
                 while (!Thread.currentThread().isInterrupted()) {
 
-                    while(!lockSendListRoom.get(id)) {
+                    while (!lockSendListRoom.get(id)) {
                         try {
                             sleep(100);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                        try {
-                            oos.writeObject(listRoom);
-                            lockSendListRoom.set(id, false);
-                        } catch (IOException ex) {
-                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    
+                    try {
+                        oos.writeObject(listRoom);
+                        lockSendListRoom.set(id, false);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                 }
             }
         }
@@ -86,12 +86,12 @@ public class Server {
                 System.out.println(name + " has been connected");
                 player = new Player(name, 0, 0);
                 player.setClientName(id);
-                
+
                 //KASIH LISTROOM KE CLIENT TERSEBUT
                 objectToClient.writeObject(listRoom);
                 objectToClient.reset();
                 lockSendListRoom.set(id, false);
-                Thread sendListRoom = new Thread(new SendListRoom(id, socket,objectToClient));
+                Thread sendListRoom = new Thread(new SendListRoom(id, socket, objectToClient));
                 sendListRoom.start();
 
                 //DAPET ROOM YANG DIINGINKAN USER
@@ -104,7 +104,7 @@ public class Server {
                     listRoom.get(roomNumber).addPlayers(player);
                     player.setRoomName(roomNumber);
                 } else {
-                    Room newRoom = new Room((String)objectFromClient.readObject(), player);
+                    Room newRoom = new Room((String) objectFromClient.readObject(), player);
                     newRoom.addPlayers(player);
                     listRoom.add(newRoom);
                     player.setRoomName(listRoom.size() - 1);
@@ -193,12 +193,12 @@ public class Server {
     public static void main(String args[]) throws IOException {
         InetAddress ip;
         String hostname;
-        try{
-            ip=InetAddress.getLocalHost();
-            hostname= ip.getHostName();
-            System.out.println("Server IP address : "+ip);
-            System.out.println("Server IP hostname : "+hostname);
-        }catch(UnknownHostException e){
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            System.out.println("Server IP address : " + ip);
+            System.out.println("Server IP hostname : " + hostname);
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         }
         server = new ServerSocket(2000);
