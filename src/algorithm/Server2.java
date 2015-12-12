@@ -44,11 +44,15 @@ public class Server2 {
             idClient = clientNumber;
         }
 
-        public void Parse(String req) {
+        public void Parse(String req) throws Exception {
             Scanner scan=new Scanner(req);
             String command=scan.next();//ambil kata 1 1
             if (command.equals("create-room")){
                 //listRoom.add(new Room())
+                SendToClient("command untuk create room");
+            }
+            else{
+                SendToClient("tidak ada command seperti itu");
             }
             //if lain lainnya
             //isi prosesnya disini
@@ -56,10 +60,10 @@ public class Server2 {
 
         void SendToClient(String msg) throws Exception {
             //create output stream attached to socket
-            PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            PrintWriter outToClient = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             //send msg to server
-            outToServer.print(msg + '\n');
-            outToServer.flush();
+            outToClient.print(msg + '\n');
+            outToClient.flush();
         }
 
         public void run() {
@@ -70,6 +74,8 @@ public class Server2 {
                     Parse(request);
                 }
             } catch (IOException ex) {
+                Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
                 Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -98,6 +104,7 @@ public class Server2 {
         server = new ServerSocket(2000);
         while (true) {
             Socket socket = server.accept();
+            System.out.println("connected");
             ClientController clientcontroller=new ClientController(socket);
             
             listClient.add(clientcontroller);
