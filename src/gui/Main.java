@@ -9,11 +9,11 @@
  */
 package gui;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import gui.data.PlayersDetail;
 import gui.element.ImageButton;
 import gui.element.Label;
-import gui.element.PlayersPanel;
-import gui.element.TransparentPanel;
+import gui.page.HighScorePage;
 import gui.page.HomePage;
 import gui.page.MenuPage;
 import gui.page.RoomPage;
@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Kelas utama program dengan Graphical User Interface
@@ -37,6 +38,7 @@ public class Main extends JFrame {
     private JLayeredPane layers;
     private HomePage homePage;
     private MenuPage menuPage;
+    private HighScorePage highScorePage;
     private RoomPage roomPage;
     private NewRoomWindow newRoomWindow;
     private RoleWindow roleWindow;
@@ -45,10 +47,10 @@ public class Main extends JFrame {
     private PlayerWinWindow playerWinWindow;
     private HostNameWindow hostNameWindow;
     private EmptyWindow emptyWindow;
-    private PlayersPanel playersPanel;
 
     // Atribut penggambaran
     private ArrayList<String> characterFileNames;
+    private Map highScores;
     private Map roomList;
     private ArrayList<Label> roomLabels;
     private PlayersDetail playersDetail;
@@ -74,23 +76,41 @@ public class Main extends JFrame {
         // Inisiasi nilai
         isConnect = false;
         isGameStart = false;
-        roomList = new HashMap();
+        roomList = new TreeMap();
+        highScores = new TreeMap();
         playersDetail = new PlayersDetail();
         boardValue = new int[20][20];
         // TODO inisiasi nilai
-        playersDetail.add(2,"birdie", true);
-        playersDetail.add(3,"doggie", false);
+        highScores.put("birdie", 100);
+        highScores.put("lala", 200);
+        highScores.put("doggie", 50);
+        highScores.put("birdie2", 100);
+        highScores.put("lala3", 200);
+        highScores.put("doggie4", 50);
+        highScores.put("birdie6", 100);
+        highScores.put("lala8", 200);
+        highScores.put("doggie9", 50);
+        highScores.put("doggie1", 50);
+        highScores.putAll(highScores);
+        playersDetail.add(2,"birdie", false, true);
+        playersDetail.add(3,"doggie", true, false);
+        playersDetail.add(1,"test", false, true);
+        playersDetail.add(2,"birdie", false, true);
+        playersDetail.add(3,"doggie", true, false);
+        playersDetail.add(1,"test", false, true);
+        playersDetail.add(2,"birdie", false, true);
+        playersDetail.add(3,"doggie", true, false);
+        playersDetail.add(1,"test", false, true);
+        playersDetail.add(2,"birdie", false, true);
         for (int i=0; i<20; i++) {
             for (int j=0; j<20; j++) {
                 boardValue[i][j] = -1;
-                if (j%2==0) {
-                    boardValue[i][j] = 0;
-                }
             }
         }
         roomList.put("Room Satu", 2);
         roomList.put("Room Dua", 1);
         roomList.put("Room Tiga", 5);
+        roomList.put("Room Lima", 2);
 
         // Inisiasi frame
         setTitle("WAL");
@@ -98,15 +118,17 @@ public class Main extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         layers = new JLayeredPane();
         layers.setPreferredSize(new Dimension(getPreferredSize().width, getPreferredSize().height));
         layers.setOpaque(false);
         layers.setLayout(null);
-//        hostNameHandler();
-        nickname = "doggie";
-        roomName = "tes";
-        roomController();
+        hostNameHandler();
         setVisible(true);
     }
 
@@ -156,13 +178,44 @@ public class Main extends JFrame {
                 }
             }
         });
+        // Mendeteksi tombol high scores ditekan
+        menuPage.getHighScoreButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == menuPage.getHighScoreButton()) {
+                    highScoreController();
+                    invalidate();
+                    validate();
+                }
+            }
+        });
         newRoomHandler();
         chooseRoomHandler();
+    }
+
+    // Menangani tampilan dan aksi pada page highscore
+    public void highScoreController() {
+        layers = new JLayeredPane();
+        highScorePage = new HighScorePage(highScores);
+        layers.add(highScorePage, new Integer(0));
+        setContentPane(layers);
+        // Mendeteksi tombol back pada highscore ditekan
+        highScorePage.getBackButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == highScorePage.getBackButton()) {
+                        menuController();
+                        invalidate();
+                        validate();
+                }
+            }
+        });
     }
 
     // Menangani tampilan dan aksi pada page Room
     public void roomController() {
         layers = new JLayeredPane();
+        System.out.println(roomName);
         roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname, boardValue);
         layers.add(roomPage, new Integer(0));
         setContentPane(layers);
@@ -386,7 +439,6 @@ public class Main extends JFrame {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         onMouseClickedBoard(e, boardLabels);
-                        // TODO repaint panel here
                     }
                 });
             }
@@ -398,6 +450,7 @@ public class Main extends JFrame {
             for (int j = 0; j < 20; j++) {
                 if (e.getSource() == boardLabels[i][j]) {
                     boardValue[i][j] = characterSign;
+                    roomPage.setBoardValue(i,j, characterSign);
                     // TODO board sudah terisi/belum, apakah client menang, ganti giliran
 //                    if (true) {
 //                        emptyWindow = new EmptyWindow("You win.");

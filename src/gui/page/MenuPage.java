@@ -30,7 +30,7 @@ public class MenuPage extends BackgroundPanel {
     private Label nicknameLabel;
     private ImageButton highScoreButton;
     private JPanel roomListPanel;
-    private ArrayList<Label> labels;
+    private ArrayList<Label> labels; // Daftar label nama ruangan
 
     // Konstruktor
     public MenuPage(String nickname, Map roomList) {
@@ -40,7 +40,6 @@ public class MenuPage extends BackgroundPanel {
         // Panel button
         TransparentPanel buttonPanel = new TransparentPanel();
         buttonPanel.setLayout(new GridLayout(1, 2, 1100, 0));
-        buttonPanel.setBorder(new EmptyBorder(0, 0, 35, 0));
         // Button back
         backButton = new ImageButton("button-back.png");
         buttonPanel.add(backButton.getButton());
@@ -50,26 +49,31 @@ public class MenuPage extends BackgroundPanel {
 
         // Panel nickname dan menu
         TransparentPanel menuPanel = new TransparentPanel();
-        menuPanel.setLayout(new GridLayout(2, 1, 0, 30));
+        menuPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        menuPanel.setPreferredSize(new Dimension(360,570));
+        // Foto profile
+        ImageButton profilePicture = new ImageButton("profile.png");
+        menuPanel.add(profilePicture.getButton());
         // Label nickname
         nicknameLabel = new Label(nickname);
         menuPanel.add(nicknameLabel);
         // Tombol menu
-        highScoreButton = new ImageButton("button-highscore.png");
+        highScoreButton = new ImageButton("button-high-scores.png");
         menuPanel.add(highScoreButton.getButton());
 
         // Panel Room List
         roomListPanel = new JPanel();
         roomListPanel.setBackground(Color.decode("#16495A"));
-        roomListPanel.setOpaque(true);
-        roomListPanel.setBorder(new EmptyBorder(20, 0, 0, 20));
-        roomListPanel.setLayout(new GridLayout(roomList.size(), 2, 0, 50));
+//        roomListPanel.setOpaque(true);
+        roomListPanel.setLayout(new GridLayout(roomList.size(), 2, 0, 20));
 
         labels = new ArrayList<>();
         int idRoom = 1;
         for (Object key : roomList.keySet()) {
             String roomName = idRoom + ".   " + key;
             Label roomNameLabel = new Label(roomName);
+            roomNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            roomNameLabel.setBorder(new EmptyBorder(0,70,0,0));
             labels.add(roomNameLabel);
             roomListPanel.add(roomNameLabel);
 
@@ -87,7 +91,7 @@ public class MenuPage extends BackgroundPanel {
         // Finalisasi
         // Panel element
         TransparentPanel elementPanel = new TransparentPanel();
-        elementPanel.setLayout(new BorderLayout(0, 0));
+        elementPanel.setLayout(new BorderLayout(17,35));
         elementPanel.add(buttonPanel, BorderLayout.PAGE_START);
         elementPanel.add(menuPanel, BorderLayout.LINE_START);
         elementPanel.add(roomListPanel, BorderLayout.CENTER);
