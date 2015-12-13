@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class PlayersPanel extends TransparentPanel {
     // Atribut
     private PlayersDetail playersDetail;
+    private ArrayList<Label> playersNameLabel;
 
     // Konstruktor
     public PlayersPanel(ArrayList<String> characterFileInfo, PlayersDetail playersDetail, String thisPlayer) {
@@ -19,6 +20,7 @@ public class PlayersPanel extends TransparentPanel {
 
         // Buat tabel dengan baris sejumlah pemain yang ada
         setLayout(new GridLayout(playersDetail.size(), 1, 0, 0));
+        playersNameLabel = new ArrayList<>();
         for (int i = 0; i < playersDetail.size(); i++) { // Looping sejumlah jumlah pemain
             // Panel untuk tiap player
             TransparentPanel playerPanel = new TransparentPanel();
@@ -30,7 +32,14 @@ public class PlayersPanel extends TransparentPanel {
             playerPanel.add(playerIcon.getButton());
 
             // Player's name
-            playerPanel.add(new Label(playersDetail.getPlayerName(i)));
+            Label playerName;
+            if (playersDetail.getIsTurn(i)) {
+                playerName = new Label(playersDetail.getPlayerName(i), "green", 30);
+            } else {
+                playerName = new Label(playersDetail.getPlayerName(i), "white", 30);
+            }
+            playerPanel.add(playerName);
+            playersNameLabel.add(playerName);
 
             // Room's master key
             boolean isMaster = playersDetail.getIsMaster(i);
@@ -47,14 +56,9 @@ public class PlayersPanel extends TransparentPanel {
     // Setter
     // Mengubah warna pada nama player untuk menunjukkan giliran bermain menjadi warna hijau
     public void setTurn(String playerName) {
-        int i = 0;
-        while(!playersDetail.getPlayerName(i).equals(playerName) && i < playersDetail.size()) {
-            i++;
+        for (int i=0; i<playersNameLabel.size(); i++) {
+            playersNameLabel.get(i).setColor("white");
         }
-
-    }
-
-    // Mengubah master key pada player tertentu
-    public void setMaster(String playerName) {
+        playersNameLabel.get(playersNameLabel.indexOf(playerName)).setColor("green");
     }
 }

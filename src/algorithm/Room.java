@@ -27,6 +27,7 @@ public class Room implements Serializable {
     private ArrayList<Player> players;
     private Player turn;
     private boolean isGameStart;
+    private boolean isOpen;
 
     // Konstruktor
     public Room() {
@@ -34,6 +35,8 @@ public class Room implements Serializable {
         master = new Player();
         players = new ArrayList<Player>();
         turn = new Player();
+        isGameStart = false;
+        isOpen = true;
     }
 
     public Room(String _name, Player _master) {
@@ -42,18 +45,8 @@ public class Room implements Serializable {
         master = _master;
         players = new ArrayList<Player>();
         turn = new Player();
-    }
-
-    public Room(Room _room) {
-        name = _room.getName();
-        board = new Board();
-        board.setBoard(_room.getBoard());
-        master = _room.getMaster();
-        players = new ArrayList<Player>();
-        for (int i = 0; i < _room.countPlayers(); i++) {
-            players.add(_room.getPlayer(i));
-        }
-        turn = _room.turn();
+        isGameStart = false;
+        isOpen = true;
     }
 
     // Getter
@@ -84,6 +77,10 @@ public class Room implements Serializable {
     public boolean isGameStart() {
         return isGameStart;
     }
+    
+    public boolean isOpen() {
+        return isOpen;
+    }
 
     // Setter
     public void setName(String _name) {
@@ -108,6 +105,10 @@ public class Room implements Serializable {
 
     public void isGameStart(boolean truth) {
         isGameStart = truth;
+    }
+    
+    public void isOpen(boolean truth) {
+        isOpen = truth;
     }
 
     // Method

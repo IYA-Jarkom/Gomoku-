@@ -21,6 +21,9 @@ public class PlayersDetail {
     public String getPlayerName(int i) {
         return playersDetail.get(i).getPlayerName();
     }
+    public boolean getIsTurn(int i) {
+        return playersDetail.get(i).isTurn();
+    }
     public boolean getIsMaster(int i) {
         return playersDetail.get(i).isMaster();
     }
@@ -37,8 +40,8 @@ public class PlayersDetail {
     }
 
     // Method
-    public void add(int characterSign, String playerName, boolean isMaster) {
-        playersDetail.add(new PlayerDetail(characterSign, playerName, isMaster));
+    public void add(int characterSign, String playerName, boolean isTurn, boolean isMaster) {
+        playersDetail.add(new PlayerDetail(characterSign, playerName, isTurn, isMaster));
     }
     // Mencari nama player yang bermain pada daftar seluruh player dan mengubah nama player tersebut dengan "You"
     public void changePlayerNameToYou(String playerName) {

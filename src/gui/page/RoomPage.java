@@ -22,10 +22,12 @@ import java.util.ArrayList;
  */
 public class RoomPage extends BackgroundPanel {
     // Atribut
+    private ArrayList<String> characterFileInfo;
+    private String thisPlayer;
     private ImageButton backButton;
     private ImageButton startButton;
     private PlayersPanel playersPanel;
-    private TransparentPanel boardPanel;
+    private int[][] boardValue;
     private Label[][] board;
 
     // Konstruktor
@@ -33,21 +35,38 @@ public class RoomPage extends BackgroundPanel {
         // Background
         super("bg-room.jpg");
 
+        this.boardValue = boardValue;
+        this.characterFileInfo = characterFileInfo;
+        this.thisPlayer = thisPlayer;
+
         // Panel Info
         TransparentPanel infoPanel = new TransparentPanel();
-        infoPanel.setLayout(new GridLayout(3, 1, 0, 50));
+        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        infoPanel.setPreferredSize(new Dimension(350,750));
 
         // Panel Header
         TransparentPanel headerPanel = new TransparentPanel();
         // Button back
         backButton = new ImageButton("button-back.png");
         headerPanel.add(backButton.getButton());
-        headerPanel.add(new Label(roomName));
+        System.out.println("l: " + roomName);
+        headerPanel.add(new Label(roomName, "white", 40));
         infoPanel.add(headerPanel);
 
         // Panel Players
         playersPanel = new PlayersPanel(characterFileInfo, playersDetail, thisPlayer);
-        infoPanel.add(playersPanel);
+        JScrollPane playersScroll = new JScrollPane(playersPanel);
+        playersScroll.setOpaque(false);
+        playersScroll.getViewport().setOpaque(false);
+        playersScroll.setBorder(null);
+        playersScroll.setBounds(0,0,350,450);
+        playersScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        TransparentPanel contentPane = new TransparentPanel();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.setPreferredSize(new Dimension(350, 450));
+        contentPane.add(playersScroll);
+        infoPanel.add(contentPane);
 
         // Button start
         startButton = new ImageButton("button-start.png");
@@ -55,7 +74,7 @@ public class RoomPage extends BackgroundPanel {
 
         // Panel board
         board = new Label[20][20];
-        boardPanel = new TransparentPanel();
+        TransparentPanel boardPanel = new TransparentPanel();
         boardPanel.setLayout(new GridLayout(20, 20, 0, 0));
         boardPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         boardPanel.setPreferredSize(new Dimension(700, 700));
@@ -102,15 +121,18 @@ public class RoomPage extends BackgroundPanel {
         return startButton.getButton();
     }
 
-    public PlayersPanel getPlayersPanel() {
-        return playersPanel;
-    }
-
     public Label[][] getBoard() {
         return board;
     }
 
-    public TransparentPanel getBoardPanel() {
-        return boardPanel;
+    // Setter
+    // Mengisi board pada posisi ke (x,y) menjadi characterSign
+    public void setBoardValue(int x, int y, int characterSign) {
+        if (characterSign != -1) {
+            // Board telah terisi
+            boardValue[x][y] = characterSign;
+            String fileName = "icon-" + characterFileInfo.get(characterSign);
+            board[x][y].setIcon(fileName);
+        }
     }
 }
