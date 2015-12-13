@@ -50,7 +50,7 @@ public class Server2 {
         }
 
         public void Parse(String req) throws Exception {
-            
+
             String[] command = req.split("\\s+");
             if (command[0].equals("create-room")) {
                 listRoom.add(new Room(command[1], listPlayer.get(idPlayer)));
@@ -58,10 +58,21 @@ public class Server2 {
                 idRoom = listRoom.size() - 1;
                 SendToClient("success create-room");
             } else if (command[0].equals("add-user")) {
-                idPlayer = listPlayer.size();
-                listPlayer.add(new Player(command[1], 0, 0));
+                boolean permit = true;
+                for (int i = 0; i < listPlayer.size(); i++) {
+                    if (command[1].equals(listPlayer.get(i).getNickName())) {
+                        permit = false;
+                        break;
+                    }
+                }
+                if (!permit) {
+                    idPlayer = listPlayer.size();
+                    listPlayer.add(new Player(command[1], 0, 0));
 
-                SendToClient("success add-user");
+                    SendToClient("success add-user");
+                } else {
+                    SendToClient("fail add-user");
+                }
             } else if (command[0].equals("get-room")) {
                 String str = "List of Room \n";
                 for (int i = 0; i < listRoom.size(); i++) {
@@ -71,8 +82,7 @@ public class Server2 {
             } else if (command[0].equals("join-room")) {
                 int id = Integer.parseInt(command[1]);
                 listRoom.get(id).addPlayers(listPlayer.get(idPlayer));
-                
-                
+
             } else if (command[0].equals("enter")) {
                 String stringToClient;
                 Point position = new Point();
