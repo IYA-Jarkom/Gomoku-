@@ -52,7 +52,13 @@ public class Server2 {
         public void Parse(String req) throws Exception {
             String[] command = req.split("\\s+");
             
-            if (command[0].equals("create-room")) {
+            if (command[0].equals("chat")){
+                String str=": ";
+                str=str+listPlayer.get(idPlayer).getNickName()+" "+command[1];
+                for(int i=0;i<listRoom.get(idRoom).getPlayers().size();i++){
+                    sendToSpesificClient(str,listRoom.get(idRoom).getPlayers().get(i).getClientID());
+                }
+            }else if (command[0].equals("create-room")) {
                 String stringToClient;
                 if (command.length > 2) {
                     // Create room berhasil
