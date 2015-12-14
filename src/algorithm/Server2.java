@@ -114,6 +114,34 @@ public class Server2 {
                     str = str + listRoom.get(i).getName() + " " + listRoom.get(i).countPlayers()  + " ";
                 }
                 SendToClient(str);
+            } else if (command[0].equals("get-board")) {
+                // Mengirim isi board yang diupdate ke setiap client
+                Point position = new Point();
+                String stringToClient = "update-board ";
+                
+                for (int i = 0; i < 20; i++) {
+                    for (int j = 0; j < 20; j++) {
+                        position.setLocation(i, j);
+                        stringToClient += listRoom.get(idRoom).getBoard().getBoardElement(position)+" ";
+                    }
+                }
+                for (int i = 0; i < listClient.size(); i++) {
+                    if (listClient.get(i).idRoom == idRoom) {
+                        sendToSpesificClient(stringToClient, i);
+                    }
+                }
+            } else if (command[0].equals("get-players")) {
+                // Mengirim data player dalam room ke semua client
+                String stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
+                for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
+                    stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
+                }
+
+                for (int i = 0; i < listClient.size(); i++) {
+                    if (listClient.get(i).idRoom == idRoom) {
+                        sendToSpesificClient(stringToClient, i);
+                    }
+                }
             } else if (command[0].equals("join-room")) {
                 // Mencari indeks room yang akan dijoin pada listRoom
                 int id = 0;
@@ -143,17 +171,6 @@ public class Server2 {
 
                         // Mengirim nama room, nama masternya, dan id room
                         SendToClient("success join-room " + listRoom.get(idRoom).getName() + " " + listRoom.get(idRoom).getMaster().getNickName()+" "+idRoom);
-                        // Mengirim data player dalam room ke semua client
-                        stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
-                        for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
-                            stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
-                        }
-
-                        for (int i = 0; i < listClient.size(); i++) {
-                            if (listClient.get(i).idRoom == idRoom) {
-                                sendToSpesificClient(stringToClient, i);
-                            }
-                        }
                     } else {
                         SendToClient("fail-character join-room");
                     }
@@ -234,20 +251,6 @@ public class Server2 {
                                 if (listClient.get(i).idRoom == idRoom) {
                                     sendToSpesificClient("turn "+turnIndex, i);
                                 }
-                            }
-                        }
-                        
-                        // Mengirim isi board yang diupdate ke setiap client
-                        stringToClient = "update-board ";
-                        for (int i = 0; i < 20; i++) {
-                            for (int j = 0; j < 20; j++) {
-                                position.setLocation(i, j);
-                                stringToClient += listRoom.get(idRoom).getBoard().getBoardElement(position)+" ";
-                            }
-                        }
-                        for (int i = 0; i < listClient.size(); i++) {
-                            if (listClient.get(i).idRoom == idRoom) {
-                                sendToSpesificClient(stringToClient, i);
                             }
                         }
                     }
