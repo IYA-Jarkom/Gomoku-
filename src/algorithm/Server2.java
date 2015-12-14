@@ -29,12 +29,13 @@ import java.util.logging.Logger;
  * @author Angela Lynn - 13513032
  */
 public class Server2 {
-
     static public ServerSocket server;
     static public ArrayList<Room> listRoom = new ArrayList();
     static public ArrayList<Player> listPlayer = new ArrayList();
     static public ArrayList<ClientController> listClient = new ArrayList();
     static public int clientNumber = 0;
+    static public int MAX_PLAYER = 6;
+
     // Kelas
     public static class ClientController
             extends Thread {
@@ -139,7 +140,7 @@ public class Server2 {
                         break;
                     }
                 }
-                
+
                 if (command.length > 2) {
                     // Mengecek apakah character yang dipilih player sudah dipakai
                     boolean permit = true;
@@ -163,8 +164,8 @@ public class Server2 {
                         SendToClient("fail-character join-room");
                     }
                 } else {
-                    // Mengecek apakah room masih bisa dimasuki
-                    if (listRoom.get(id).isOpen()) {
+                    // Mengecek apakah room masih bisa dimasuki dan jumlah pemain < MAX_PLAYER
+                    if (listRoom.get(id).isOpen() && listRoom.get(id).countPlayers() < MAX_PLAYER) {
                         // Room bisa dimasuki
                         SendToClient("success-room join-room");
                     } else {
@@ -192,7 +193,7 @@ public class Server2 {
             } else if (command[0].equals("update-board")) {
                 int turnIndex = 0;
                 Point position = new Point();
-                
+
                 if (listRoom.get(idRoom).turn().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
                     // Client boleh mengupdate board
                     position.setLocation(Integer.parseInt(command[1]), Integer.parseInt(command[2]));
@@ -200,7 +201,7 @@ public class Server2 {
                         // Posisi board boleh diisi
                         // Mencari indeks client pada list player di room
                         String stringToClient;
-                        
+
                         for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
                             if (listRoom.get(idRoom).turn().getNickName().equals(listRoom.get(idRoom).getPlayer(i).getNickName())) {
                                 turnIndex = i;
@@ -216,7 +217,7 @@ public class Server2 {
                             listPlayer.get(idPlayer).setWinNumber(listPlayer.get(idPlayer).getWinNumber()+1);
                             listRoom.get(idRoom).clearBoard();
                             listRoom.get(idRoom).isGameStart(false);
-                            
+
                             // Mengirim data pemenang ke semua client di room
                             for (int i = 0; i < listClient.size(); i++) {
                                 if (listClient.get(i).idRoom == idRoom) {
@@ -226,14 +227,14 @@ public class Server2 {
                         } else {
                             // Client belum menang. Game masih berlanjut
                             listRoom.get(idRoom).isGameStart(true);
-                            
+
                             // Mengganti giliran pemain
                             if ((turnIndex+1) == listRoom.get(idRoom).countPlayers()) {
                                 turnIndex = 0;
                             } else {
                                 turnIndex++;
                             }
-                            
+
                             // Mengirim data giliran pemain selanjutnya ke semua client di room
                             for (int i = 0; i < listClient.size(); i++) {
                                 if (listClient.get(i).idRoom == idRoom) {
@@ -253,9 +254,9 @@ public class Server2 {
                 }
                 SendToClient(str);
             }else if (command[0].equals("")) {
-                
+
             } else {
-                
+
                 SendToClient("unknown command");
 
             }

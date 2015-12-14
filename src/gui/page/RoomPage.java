@@ -26,6 +26,7 @@ public class RoomPage extends BackgroundPanel {
     // Atribut
     private ArrayList<String> characterFileInfo;
     private String thisPlayer;
+    private PlayersDetail playersDetail;
     private ImageButton backButton;
     private ImageButton startButton;
     private PlayersPanel playersPanel;
@@ -43,6 +44,7 @@ public class RoomPage extends BackgroundPanel {
                 this.boardValue[i][j] = room.getBoard().getBoardElement(new Point(i,j));
             }
         }
+        this.playersDetail = playersDetail;
         this.characterFileInfo = characterFileInfo;
         this.thisPlayer = thisPlayer;
 
@@ -60,7 +62,7 @@ public class RoomPage extends BackgroundPanel {
         infoPanel.add(headerPanel);
 
         // Panel Players
-        playersPanel = new PlayersPanel(characterFileInfo, playersDetail, thisPlayer);
+        playersPanel = new PlayersPanel(characterFileInfo, this.playersDetail, thisPlayer);
         JScrollPane playersScroll = new JScrollPane(playersPanel);
         playersScroll.setOpaque(false);
         playersScroll.getViewport().setOpaque(false);
@@ -122,23 +124,31 @@ public class RoomPage extends BackgroundPanel {
     public JButton getBackButton() {
         return backButton.getButton();
     }
-
     public JButton getStartButton() {
         return startButton.getButton();
     }
-
+    public PlayersDetail getPlayersDetail() {
+        return playersPanel.getPlayersDetail();
+    }
+    public PlayersPanel getPlayersPanel() {
+        return playersPanel;
+    }
     public Label[][] getBoard() {
         return board;
     }
 
     // Setter
+    public void setPlayersDetail(PlayersDetail playersDetail) {
+        this.playersDetail = playersDetail;
+    }
+
     public void refreshBoard() {
         for (int i=0; i<20; i++) {
             for (int j=0; j<20; j++) {
                  if (boardValue[i][j] != room.getBoard().getBoardElement(new Point(i,j))) {
                      // Perlu diupdate
-                     boardValue[i][j] = room.getBoard().getBoardElement(new Point(i,j));
-                     setBoardValue(i,j,boardValue[i][j]);
+                     System.out.println("Set " +i+ " " + j+" "+ room.getBoard().getBoardElement(new Point(i,j)));
+                     setBoardValue(i,j,room.getBoard().getBoardElement(new Point(i,j)));
                  }
             }
         }

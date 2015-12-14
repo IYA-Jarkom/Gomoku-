@@ -248,11 +248,116 @@ public class Main extends JFrame {
 
     // Menangani tampilan dan aksi pada page Room
     public void roomController() throws Exception {
-        // Kirim perintah meminta daftar pemain dari server
+        if (!room.isGameStart()) {
+            // Kirim perintah untuk mendapatkan daftar pemain
+            sendToServer("get-players");
+            sleep(100);
+
+            // Isi daftar pemain
+            playersDetail = new PlayersDetail();
+            String masterNickname = room.getMaster().getNickName();
+            for (int i = 0; i < room.getPlayers().size(); i++) {
+                Player player = room.getPlayer(i);
+                boolean isMaster = false;
+                if (player.getNickName().equals(masterNickname)) {
+                    isMaster = true;
+                }
+                // Tambah player baru
+                playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
+            }
+            // Menampilkan tombol start game bila pemain adalah master room
+            if (nickname.equals(room.getMaster())) {
+                roomPage.getStartButton().setVisible(true);
+            }
+
+            layers.removeAll();
+            layers.repaint();
+            layers.revalidate();
+
+            layers = new JLayeredPane();
+            roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname);
+            layers.add(roomPage, new Integer(0));
+            layers.repaint();
+            layers.revalidate();
+            setContentPane(layers);
+
+            // Mendeteksi tombol back ditekan
+            roomPage.getBackButton().addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (e.getSource() == roomPage.getBackButton()) {
+                        menuController();
+                        invalidate();
+                        validate();
+                    }
+                }
+            });
+            startGameHandler();
+        } else {
+            roomPage.getStartButton().setVisible(false);
+            boardHandler();
+        }
+    }
+
+    // Auto refresh player setiap interval tertentu
+    public void playersAutoRefresher() throws Exception {
+        // Kirim perintah untuk mendapatkan daftar pemain
         sendToServer("get-players");
         sleep(100);
-        // Daftar pemain pada room
+
+        // Isi daftar pemain
         playersDetail = new PlayersDetail();
+        String masterNickname = room.getMaster().getNickName();
+        for (int i = 0; i < room.getPlayers().size(); i++) {
+            Player player = room.getPlayer(i);
+            boolean isMaster = false;
+            if (player.getNickName().equals(masterNickname)) {
+                isMaster = true;
+            }
+            // Tambah player baru
+            playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
+        }
+        // Menampilkan tombol start game bila pemain adalah master room
+        if (nickname.equals(room.getMaster())) {
+            roomPage.getStartButton().setVisible(true);
+        }
+
+        layers = new JLayeredPane();
+        roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname);
+        layers.add(roomPage, new Integer(0));
+        setContentPane(layers);
+
+        Timer timer = new Timer(INTERVAL, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                try {
+                    roomController();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                boolean isGameStart = room.isGameStart();
+                if (!isGameStart) {
+                    //Refresh player panel
+                } else {
+                    // Refresh board panel
+//                    roomPage.removeAll();
+                    roomPage.refreshBoard();
+                    roomPage.repaint();
+                    roomPage.revalidate();
+                }
+
+                if (isGameFinish) {
+                    ((Timer)evt.getSource()).stop();
+                }
+            }
+        });
+        timer.start();
+    }
+
+    // Memeriksa daftar pemain pada room saat ini
+    private void refreshPlayersDetail() throws Exception {
+        sendToServer("get-players");
+        sleep(100);
+        PlayersDetail roomPlayersDetail = roomPage.getPlayersDetail();
         String masterNickname = room.getMaster().getNickName();
         for (int i=0; i<room.getPlayers().size(); i++) {
             Player player = room.getPlayer(i);
@@ -260,33 +365,18 @@ public class Main extends JFrame {
             if (player.getNickName().equals(masterNickname)) {
                 isMaster = true;
             }
-            playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
-        }
 
-
-        layers = new JLayeredPane();
-        roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname);
-        layers.add(roomPage, new Integer(0));
-        setContentPane(layers);
-
-        // Jumlah pemain aktif pada room
-        int playerNum = Client2.room.countPlayers();
-        if (playerNum >= 3) {
-            roomPage.getStartButton().setVisible(false);
-        }
-        // Mendeteksi tombol back ditekan
-        roomPage.getBackButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == roomPage.getBackButton()) {
-                    menuController();
-                    invalidate();
-                    validate();
+            if (i > roomPlayersDetail.size()-1) {
+                // Tambah player baru
+                roomPlayersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
+            } else {
+                // Periksa perubahan pada player
+                boolean isChanged = roomPlayersDetail.getCharacterSign(i)!=player.getCharacter() && !roomPlayersDetail.getPlayerName(i).equals(player.getNickName()) && (roomPlayersDetail.getIsMaster(i)!=isMaster);
+                if (isChanged) {
+                    roomPlayersDetail.set(i, player.getCharacter(), player.getNickName(), false, isMaster);
                 }
             }
-        });
-        playerAutoRefresher();
-        startGameHandler();
+        }
     }
 
     // Prosedur lainnya
@@ -432,7 +522,7 @@ public class Main extends JFrame {
                     invalidate();
                     validate();
                 } else if (Client2.command[0].equals("fail-room")) {
-                    emptyWindow = new EmptyWindow("Sorry, the game has been started.");
+                    emptyWindow = new EmptyWindow("Sorry, you can not join right now.");
                     layers.add(emptyWindow, new Integer(1));
                     setContentPane(layers);
                     backFromEmptyWindow(emptyWindow);
@@ -525,7 +615,7 @@ public class Main extends JFrame {
                 sleep(100);
                 if (Client2.command[0].equals("success")) {
                     // Pemain pindah ke room
-                    roomController();
+                    playersAutoRefresher();
                     invalidate();
                     validate();
                 } else if (Client2.command[0].equals("fail-character")) {
@@ -634,30 +724,6 @@ public class Main extends JFrame {
         }
     }
 
-    // Auto refresh player setiap interval tertentu
-    public void playerAutoRefresher() {
-        // Timer
-        Timer timer = new Timer(INTERVAL, new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                //Refresh the panel
-                // Kirim perintah meminta daftar pemain dari server
-                try {
-                    roomController();
-//                    roomPage.revalidate();
-//                    roomPage.repaint();
-//                    setContentPane(roomPage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (room.isGameStart()) {
-                    ((Timer)evt.getSource()).stop();
-                }
-            }
-        });
-        timer.start();
-    }
-
     // Auto refresh room setiap interval tertentu
     public void boardAutoRefresher() {
         // Timer
@@ -738,7 +804,6 @@ public class Main extends JFrame {
             }
         });
     }
-
     public void closeWindow(NewRoomWindow window) {
         window.getNoButton().addActionListener(new ActionListener() {
             @Override

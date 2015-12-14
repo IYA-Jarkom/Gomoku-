@@ -15,34 +15,35 @@ public class PlayersPanel extends TransparentPanel {
 
     // Konstruktor
     public PlayersPanel(ArrayList<String> characterFileInfo, PlayersDetail playersDetail, String thisPlayer) {
+        this.playersDetail = playersDetail;
         // Ubah nama thisPlayer menjadi "You"
-        playersDetail.changePlayerNameToYou(thisPlayer);
+        this.playersDetail.changePlayerNameToYou(thisPlayer);
 
         // Buat tabel dengan baris sejumlah pemain yang ada
-        setLayout(new GridLayout(playersDetail.size(), 1, 0, 0));
+        setLayout(new GridLayout(this.playersDetail.size(), 1, 0, 0));
         playersNameLabel = new ArrayList<>();
-        for (int i = 0; i < playersDetail.size(); i++) { // Looping sejumlah jumlah pemain
+        for (int i = 0; i < this.playersDetail.size(); i++) { // Looping sejumlah jumlah pemain
             // Panel untuk tiap player
             TransparentPanel playerPanel = new TransparentPanel();
             playerPanel.setLayout(new GridLayout(1, 3, 20, 0));
 
             // Player's character sign
-            int characterSign = playersDetail.getCharacterSign(i);
+            int characterSign = this.playersDetail.getCharacterSign(i);
             ImageButton playerIcon = new ImageButton("character-" + characterFileInfo.get(characterSign));
             playerPanel.add(playerIcon.getButton());
 
             // Player's name
             Label playerName;
-            if (playersDetail.getIsTurn(i)) {
-                playerName = new Label(playersDetail.getPlayerName(i), "green", 30);
+            if (this.playersDetail.getIsTurn(i)) {
+                playerName = new Label(this.playersDetail.getPlayerName(i), "green", 30);
             } else {
-                playerName = new Label(playersDetail.getPlayerName(i), "white", 30);
+                playerName = new Label(this.playersDetail.getPlayerName(i), "white", 30);
             }
             playerPanel.add(playerName);
             playersNameLabel.add(playerName);
 
             // Room's master key
-            boolean isMaster = playersDetail.getIsMaster(i);
+            boolean isMaster = this.playersDetail.getIsMaster(i);
             if (isMaster) {
                 ImageButton masterIcon = new ImageButton("key.png");
                 playerPanel.add(masterIcon.getButton());
@@ -51,6 +52,11 @@ public class PlayersPanel extends TransparentPanel {
             }
             add(playerPanel);
         }
+    }
+
+    // Getter
+    public PlayersDetail getPlayersDetail() {
+        return playersDetail;
     }
 
     // Setter

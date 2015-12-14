@@ -43,13 +43,21 @@ public class PlayersDetail {
     public void add(int characterSign, String playerName, boolean isTurn, boolean isMaster) {
         playersDetail.add(new PlayerDetail(characterSign, playerName, isTurn, isMaster));
     }
+
+    public void set(int i, int characterSign, String playerName, boolean isTurn, boolean isMaster) {
+        PlayerDetail newPlayerDetail = new PlayerDetail(characterSign, playerName, isTurn, isMaster);
+        playersDetail.set(i, newPlayerDetail);
+    }
+
     // Mencari nama player yang bermain pada daftar seluruh player dan mengubah nama player tersebut dengan "You"
     public void changePlayerNameToYou(String playerName) {
-        int i = 0;
-        while (!playersDetail.get(i).getPlayerName().equals(playerName) && i<playersDetail.size()-1) {
-            i++;
+        if (!playersDetail.isEmpty()) {
+            int i = 0;
+            while (!playersDetail.get(i).getPlayerName().equals(playerName) && i<playersDetail.size()-1) {
+                i++;
+            }
+            playersDetail.get(i).setPlayerName("You");
         }
-        playersDetail.get(i).setPlayerName("You");
     }
 
     // Mengembalikan jumlah pemain
