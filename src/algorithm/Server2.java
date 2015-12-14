@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +35,6 @@ public class Server2 {
     static public ArrayList<Player> listPlayer = new ArrayList();
     static public ArrayList<ClientController> listClient = new ArrayList();
     static public int clientNumber = 0;
-
     // Kelas
     public static class ClientController
             extends Thread {
@@ -75,7 +75,7 @@ public class Server2 {
                         break;
                     }
                 }
-                if (!permit) {
+                if (permit) {
                     idPlayer = listPlayer.size();
                     listPlayer.add(new Player(command[1], 0, 0));
                     listPlayer.get(idPlayer).setClientName(idClient);
@@ -85,9 +85,9 @@ public class Server2 {
                     SendToClient("fail add-user");
                 }
             } else if (command[0].equals("get-room")) {
-                String str = "List of Room \n";
+                String str = "list-of-room ";
                 for (int i = 0; i < listRoom.size(); i++) {
-                    str = str + i + ". " + listRoom.get(i).getName() + "\n";
+                    str = str + listRoom.get(i).getName() + " " + listRoom.get(i).countPlayers()  + " ";
                 }
                 SendToClient(str);
             } else if (command[0].equals("join-room")) {

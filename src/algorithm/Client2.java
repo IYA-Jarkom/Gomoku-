@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,13 +29,14 @@ import java.util.logging.Logger;
 public class Client2 {
 
     static public Socket clientSocket;
-    static public ArrayList<Room> listRoom; 
+    static public ArrayList<Room> listRoom;
     static public BufferedReader objectFromServer;
     static public PrintWriter objectToServer;
     static public Scanner scan;
     static public int clientRoom;
     static public Player player;
     static public Room room;
+
     public static class StringGetter
             extends Thread {
 
@@ -45,25 +48,40 @@ public class Client2 {
                     response = inFromServer.readLine();
                     System.out.println(response);
                     parse(response);
-                    
+
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-    
+
     // Method
+    public static TreeMap<String, Integer> StringToTreeMap(String[] str) {
+        TreeMap<String, Integer> tmap
+                = new TreeMap<String, Integer>();
+        int count = str.length / 2;
+        for (int i = 0; i < count; i++) {
+            tmap.put(str[(i + 1) * 2], Integer.parseInt(str[(i + 1) * 2 + 1]));
+        }
+        return tmap;
+    }
+
     public static void parse(String req) throws IOException {
         // Memisahkan req berdasarkan spasi
         String[] command = req.split("\\s+");
-        
+
         if (command[1].equals("add-user")) {
             if (command[0].equals("success")) {
                 // Penambahan client ke dalam game berhasil
                 player = new Player(command[2], 0, 0);
                 player.setClientName(Integer.parseInt(command[3]));
             }
+        } else if (command[0].equals("list-of-room")) {
+            for (int i = 0; i < command.length; i++) {
+                System.out.println(command[i]);
+            }
+
         } else if (command[1].equals("create-room")) {
             if (command[0].equals("success")) {
                 // Pembuatan room berhasil
@@ -79,17 +97,17 @@ public class Client2 {
         } else if (command[0].equals("players")) {
             // Menerima data player dalam room
             int playerIndex = 2;
-            
+
             room.clearPlayers();
             for (int i = 0; i < Integer.parseInt(command[1]); i++) {
-                room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex+1]), Integer.parseInt(command[playerIndex+2])));
+                room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex + 1]), Integer.parseInt(command[playerIndex + 2])));
                 playerIndex += 3;
             }
         } else if (command[0].equals("board")) {
             // Menerima isi board di room
             Point position = new Point();
             int boardIndex = 1;
-            
+
             for (int i = 0; i < 20; i++) {
                 for (int j = 0; j < 20; j++) {
                     position.setLocation(i, j);
@@ -132,6 +150,7 @@ public class Client2 {
         Thread t = new Thread(new StringGetter());
         t.start();
         while (true) {
+            sleep(100);
             System.out.print("COMMAND : ");
             //send msg to server
             String msg = scan.nextLine();
