@@ -46,12 +46,9 @@ public class Client2 {
                 String response;
                 while (true) {
                     response = inFromServer.readLine();
-                    if (response.charAt(0) == ':') {
-                        parsechat(response);
-                    } else {
-                        System.out.println(response);
-                        parse(response);
-                    }
+                    System.out.println(response);
+                    parse(response);
+
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
@@ -60,61 +57,29 @@ public class Client2 {
     }
 
     public static String[] command;
-    public static String[] chat;
+
     // Method
-    public static TreeMap<String, Integer> StringToTreeMap(String[] str) {
+    public static TreeMap<String, Integer> stringToMap(String[] str) {
         TreeMap<String, Integer> tmap
                 = new TreeMap<String, Integer>();
         int count = str.length / 2;
         for (int i = 0; i < count; i++) {
-            tmap.put(str[(i * 2) + 1], Integer.parseInt(str[(i * 2) + 2]));
+            tmap.put(str[(i*2) +1], Integer.parseInt(str[(i*2) +2]));
         }
         return tmap;
     }
 
-    public static TreeMap<String, Integer> StringToHighscore(String[] str) {
-        TreeMap<String, Integer> tmap
-                = new TreeMap<String, Integer>();
-        int count = str.length / 2;
-        for (int i = 0; i < count; i++) {
-            tmap.put(str[(i * 2) + 1], Integer.parseInt(str[(i * 2) + 2]));
-        }
-        return tmap;
-    }
-    public static void parsechat(String req) throws IOException{
-        chat=req.split("\\s+");
-        System.out.print(chat[1] + " : "+chat[2]);
-    }
     public static void parse(String req) throws IOException {
         // Memisahkan req berdasarkan spasi
 
         command = req.split("\\s+");
 
-        if (command[1].equals("add-user")) {
-            if (command[0].equals("success")) {
-                // Penambahan client ke dalam game berhasil
-                player = new Player(command[2], 0, 0);
-                player.setClientName(Integer.parseInt(command[3]));
-            }
-        } else if (command[0].equals("list-of-room")) {
+        if (command[0].equals("list-of-room")) {
             for (int i = 0; i < command.length; i++) {
                 System.out.println(command[i]);
             }
-
         } else if (command[0].equals("highscore")) {
 
-        } else if (command[1].equals("create-room")) {
-            if (command[0].equals("success")) {
-                // Pembuatan room berhasil
-                room = new Room(command[2], player);
-                player.setRoomName(Integer.parseInt(command[3]));
-            }
-        } else if (command[1].equals("join-room")) {
-            if (command[0].equals("success")) {
-                // Join room berhasil
-                room = new Room(command[2], new Player(command[3], 0, 0));
-                player.setRoomName(Integer.parseInt(command[4]));
-            }
         } else if (command[0].equals("players")) {
             // Menerima data player dalam room
             int playerIndex = 2;
@@ -136,6 +101,27 @@ public class Client2 {
                     boardIndex++;
                 }
             }
+        } else if (command[0].equals("turn")) {
+            // Menerima indeks player yang mendapat turn
+            room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
+        } else if (command[1].equals("add-user")) {
+            if (command[0].equals("success")) {
+                // Penambahan client ke dalam game berhasil
+                player = new Player(command[2], 0, 0);
+                player.setClientName(Integer.parseInt(command[3]));
+            }
+        } else if (command[1].equals("create-room")) {
+            if (command[0].equals("success")) {
+                // Pembuatan room berhasil
+                room = new Room(command[2], player);
+                player.setRoomName(Integer.parseInt(command[3]));
+            }
+        } else if (command[1].equals("join-room")) {
+            if (command[0].equals("success")) {
+                // Join room berhasil
+                room = new Room(command[2], new Player(command[3], 0, 0));
+                player.setRoomName(Integer.parseInt(command[4]));
+            }
         } else if (command[1].equals("start-game")) {
             if (command[0].equals("success")) {
                 // Game dimulai
@@ -145,21 +131,10 @@ public class Client2 {
                 // Game belum boleh dimulai
                 room.isGameStart(false);
             }
-        } else if (command[0].equals("turn")) {
-            // Menerima indeks player yang mendapat turn
-            room.isGameStart(true);
-            room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
-        } else if (command[0].equals("win-game")) {
-            // Menerima data pemenang game
-            room.getPlayer(Integer.parseInt(command[2])).setWinNumber(room.getPlayer(Integer.parseInt(command[2])).getWinNumber()+1);
-            if (player.getNickName().equals(command[1])) {
-                player.setWinNumber(player.getWinNumber()+1);
-            }
-            room.isGameStart(false);
         }
     }
 
-    private static void sendToServer(String msg) throws Exception {
+    public static void sendToServer(String msg) throws Exception {
         //create output stream attached to socket
         PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         //send msg to server

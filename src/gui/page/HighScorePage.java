@@ -35,16 +35,25 @@ public class HighScorePage extends BackgroundPanel{
 
         // Panel high scores
         TransparentPanel highScorePanel = new TransparentPanel();
-        highScorePanel.setLayout(new GridLayout(highScores.size(), 2, 20, 0));
-        highScorePanel.setBorder(new EmptyBorder(90,200,30,200));
-        for (Object key : highScores.keySet()) {
-            Label playerName = new Label ((String) key, "green", 30);
+        if (highScores.isEmpty()) {
+            highScorePanel.setLayout(new GridLayout(1, 1, 20, 0));
+            highScorePanel.setBorder(new EmptyBorder(90,200,30,200));
+            Label playerName = new Label ("Sorry there are no high scores to be shown.", "green", 30);
             playerName.setHorizontalAlignment(SwingConstants.LEFT);
             playerName.setBorder(new EmptyBorder(0,100,0,0));
             highScorePanel.add(playerName);
+        } else {
+            highScorePanel.setLayout(new GridLayout(highScores.size(), 2, 20, 0));
+            highScorePanel.setBorder(new EmptyBorder(90,200,30,200));
+            for (Object key : highScores.keySet()) {
+                Label playerName = new Label ((String) key, "green", 30);
+                playerName.setHorizontalAlignment(SwingConstants.LEFT);
+                playerName.setBorder(new EmptyBorder(0,100,0,0));
+                highScorePanel.add(playerName);
 
-            Label playerScore = new Label(highScores.get(key) + " points", "green", 30);
-            highScorePanel.add(playerScore);
+                Label playerScore = new Label(highScores.get(key) + " points", "green", 30);
+                highScorePanel.add(playerScore);
+            }
         }
 
         //Finalisasi

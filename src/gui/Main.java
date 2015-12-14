@@ -172,7 +172,7 @@ public class Main extends JFrame {
                                 invalidate();
                                 validate();
                             } else if (Client2.command[0].equals("fail")) {
-                                emptyWindow = new EmptyWindow("Sorry, the nickname has been existed.");
+                                emptyWindow = new EmptyWindow("Sorry, try another nickname.");
                                 layers.add(emptyWindow, new Integer(1));
                                 setContentPane(layers);
                                 backFromEmptyWindow(emptyWindow);
@@ -328,7 +328,7 @@ public class Main extends JFrame {
                                 invalidate();
                                 validate();
                             } else {
-                                emptyWindow = new EmptyWindow("We can not connect to you right now :(");
+                                emptyWindow = new EmptyWindow("We can not connect to you :(");
                                 layers.add(emptyWindow, new Integer(2));
                                 setContentPane(layers);
                                 backFromEmptyWindow(emptyWindow);
@@ -524,6 +524,7 @@ public class Main extends JFrame {
                     sendToServer("join-room " + roomName + " " + role + " " + characterSign);
                 }
                 sleep(100);
+                System.out.println("tes: " + Client2.command[0]);
                 if (Client2.command[0].equals("success")) {
                     // Pemain pindah ke room
                     roomController();
