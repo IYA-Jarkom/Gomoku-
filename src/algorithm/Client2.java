@@ -56,9 +56,6 @@ public class Client2 {
         }
     }
 
-
-
-    
     public static String[] command;
 
     // Method
@@ -67,7 +64,16 @@ public class Client2 {
                 = new TreeMap<String, Integer>();
         int count = str.length / 2;
         for (int i = 0; i < count; i++) {
-            tmap.put(str[(i + 1) * 2], Integer.parseInt(str[(i + 1) * 2 + 1]));
+            tmap.put(str[(i*2) +1], Integer.parseInt(str[(i*2) +2]));
+        }
+        return tmap;
+    }
+    public static TreeMap<String, Integer> StringToHighscore(String[] str) {
+        TreeMap<String, Integer> tmap
+                = new TreeMap<String, Integer>();
+        int count = str.length / 2;
+        for (int i = 0; i < count; i++) {
+            tmap.put(str[(i*2) +1], Integer.parseInt(str[(i*2) +2]));
         }
         return tmap;
     }
@@ -76,7 +82,6 @@ public class Client2 {
         // Memisahkan req berdasarkan spasi
 
         command = req.split("\\s+");
-        
 
         if (command[1].equals("add-user")) {
             if (command[0].equals("success")) {
@@ -89,6 +94,8 @@ public class Client2 {
                 System.out.println(command[i]);
             }
 
+        } else if (command[0].equals("highscore")) {
+            
         } else if (command[1].equals("create-room")) {
             if (command[0].equals("success")) {
                 // Pembuatan room berhasil

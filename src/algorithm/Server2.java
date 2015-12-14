@@ -221,7 +221,13 @@ public class Server2 {
                     // Mengirim turn player untuk bermain
                     SendToClient("turn "+turn);
                 }
-            } else if (command[0].equals("")) {
+            }else if(command[0].equals("get-highscore")){
+                String str="highscore ";
+                for(int i=0; i<listPlayer.size();i++){
+                    str=str+listPlayer.get(i).getNickName()+" "+listPlayer.get(i).getWinNumber()+" ";
+                }
+                SendToClient(str);
+            }else if (command[0].equals("")) {
                 
             } else {
                 
