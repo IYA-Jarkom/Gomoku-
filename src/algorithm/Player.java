@@ -24,6 +24,8 @@ public class Player implements Serializable {
     private int loseNumber;
     private int roomID;
     private int clientID;
+    private int character;
+    private String role;
 
     // Konstruktor
     public Player() {
@@ -58,6 +60,14 @@ public class Player implements Serializable {
     public int getClientID() {
         return clientID;
     }
+    
+    public int getCharacter() {
+        return character;
+    }
+    
+    public String getRole() {
+        return role;
+    }
 
     // Setter
     public void setNickName(String _nickName) {
@@ -79,5 +89,12 @@ public class Player implements Serializable {
     public void setClientName(int _clientID) {
         clientID = _clientID;
     }
-
+    
+    public void setCharacter(int character) {
+        this.character = character;
+    }
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

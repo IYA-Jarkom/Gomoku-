@@ -56,6 +56,11 @@ public class Client2 {
         }
     }
 
+
+
+    
+    public static String[] command;
+
     // Method
     public static TreeMap<String, Integer> StringToTreeMap(String[] str) {
         TreeMap<String, Integer> tmap
@@ -69,7 +74,9 @@ public class Client2 {
 
     public static void parse(String req) throws IOException {
         // Memisahkan req berdasarkan spasi
-        String[] command = req.split("\\s+");
+
+        command = req.split("\\s+");
+        
 
         if (command[1].equals("add-user")) {
             if (command[0].equals("success")) {
@@ -103,8 +110,8 @@ public class Client2 {
                 room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex + 1]), Integer.parseInt(command[playerIndex + 2])));
                 playerIndex += 3;
             }
-        } else if (command[0].equals("board")) {
-            // Menerima isi board di room
+        } else if (command[0].equals("update-board")) {
+            // Menerima isi board yang diupdate
             Point position = new Point();
             int boardIndex = 1;
 
