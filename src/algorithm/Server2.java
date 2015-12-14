@@ -67,14 +67,7 @@ public class Server2 {
                     listPlayer.get(idPlayer).setRoomName(idRoom);
                     listPlayer.get(idPlayer).setCharacter(Integer.parseInt(command[2]));
                     listRoom.get(idRoom).addPlayers(listPlayer.get(idPlayer));
-                    SendToClient("success create-room "+command[1]+" "+idRoom);
-
-                    // Mengirim data player dalam room
-                    stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
-                    for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
-                        stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
-                    }
-                    SendToClient(stringToClient);
+                    SendToClient("success create-room "+command[1]+" "+idRoom + " " + command[2]);
                 } else {
                     // Mengecek apakah nama room sudah dipakai
                     boolean permit = true;
@@ -134,14 +127,9 @@ public class Server2 {
                 // Mengirim data player dalam room ke semua client
                 String stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
                 for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
-                    stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
+                    stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getCharacter()+" ";
                 }
-
-                for (int i = 0; i < listClient.size(); i++) {
-                    if (listClient.get(i).idRoom == idRoom) {
-                        sendToSpesificClient(stringToClient, i);
-                    }
-                }
+                SendToClient(stringToClient);
             } else if (command[0].equals("join-room")) {
                 // Mencari indeks room yang akan dijoin pada listRoom
                 int id = 0;
@@ -170,7 +158,7 @@ public class Server2 {
                         listRoom.get(idRoom).addPlayers(listPlayer.get(idPlayer));
 
                         // Mengirim nama room, nama masternya, dan id room
-                        SendToClient("success join-room " + listRoom.get(idRoom).getName() + " " + listRoom.get(idRoom).getMaster().getNickName()+" "+idRoom);
+                        SendToClient("success join-room " + listRoom.get(idRoom).getName() + " " + listRoom.get(idRoom).getMaster().getNickName()+" "+idRoom + " " + command[3]);
                     } else {
                         SendToClient("fail-character join-room");
                     }

@@ -17,6 +17,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+import static algorithm.Client2.room;
+
 /**
  * Kelas halaman ruangan tempat pengguna bermain
  */
@@ -31,11 +33,16 @@ public class RoomPage extends BackgroundPanel {
     private Label[][] board;
 
     // Konstruktor
-    public RoomPage(String roomName, ArrayList<String> characterFileInfo, PlayersDetail playersDetail, String thisPlayer, int[][] boardValue) {
+    public RoomPage(String roomName, ArrayList<String> characterFileInfo, PlayersDetail playersDetail, String thisPlayer) {
         // Background
         super("bg-room.jpg");
 
-        this.boardValue = boardValue;
+        boardValue = new int[20][20];
+        for (int i=0; i<20; i++) {
+            for (int j=0; j<20; j++) {
+                this.boardValue[i][j] = room.getBoard().getBoardElement(new Point(i,j));
+            }
+        }
         this.characterFileInfo = characterFileInfo;
         this.thisPlayer = thisPlayer;
 
@@ -125,6 +132,18 @@ public class RoomPage extends BackgroundPanel {
     }
 
     // Setter
+    public void refreshBoard() {
+        for (int i=0; i<20; i++) {
+            for (int j=0; j<20; j++) {
+                 if (boardValue[i][j] != room.getBoard().getBoardElement(new Point(i,j))) {
+                     // Perlu diupdate
+                     boardValue[i][j] = room.getBoard().getBoardElement(new Point(i,j));
+                     setBoardValue(i,j,boardValue[i][j]);
+                 }
+            }
+        }
+    }
+
     // Mengisi board pada posisi ke (x,y) menjadi characterSign
     public void setBoardValue(int x, int y, int characterSign) {
         if (characterSign != -1) {

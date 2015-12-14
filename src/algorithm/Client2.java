@@ -86,7 +86,8 @@ public class Client2 {
 
             room.clearPlayers();
             for (int i = 0; i < Integer.parseInt(command[1]); i++) {
-                room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex + 1]), Integer.parseInt(command[playerIndex + 2])));
+                room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex + 1]), 0));
+                room.getPlayer(i).setCharacter(Integer.parseInt(command[playerIndex + 2]));
                 playerIndex += 3;
             }
         } else if (command[0].equals("update-board")) {
@@ -115,12 +116,14 @@ public class Client2 {
                 // Pembuatan room berhasil
                 room = new Room(command[2], player);
                 player.setRoomName(Integer.parseInt(command[3]));
+                player.setCharacter(Integer.parseInt(command[4]));
             }
         } else if (command[1].equals("join-room")) {
             if (command[0].equals("success")) {
                 // Join room berhasil
                 room = new Room(command[2], new Player(command[3], 0, 0));
                 player.setRoomName(Integer.parseInt(command[4]));
+                player.setCharacter(Integer.parseInt(command[5]));
             }
         } else if (command[1].equals("start-game")) {
             if (command[0].equals("success")) {

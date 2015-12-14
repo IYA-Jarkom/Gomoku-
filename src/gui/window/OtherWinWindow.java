@@ -26,7 +26,7 @@ public class OtherWinWindow extends BackgroundPanel {
     private ImageButton yesButton;
 
     // Konstruktor
-    public OtherWinWindow() {
+    public OtherWinWindow(String winnerNickname) {
         // Background
         super("bg-other-win.png");
         super.setOpaque(false);
@@ -36,7 +36,7 @@ public class OtherWinWindow extends BackgroundPanel {
         elementPanel.setLayout(new GridLayout(2, 1, 0, 50));
 
         // Label nama pemenang
-        Label winnerNameLabel = new Label("Nickname2", "white", 47);
+        Label winnerNameLabel = new Label(winnerNickname, "white", 47);
         elementPanel.add(winnerNameLabel);
         // Button yes
         yesButton = new ImageButton("button-check.png");

@@ -9,6 +9,7 @@
  */
 package gui;
 
+import algorithm.Player;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import algorithm.Client2;
 import gui.data.PlayersDetail;
@@ -33,15 +34,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static algorithm.Client2.clientSocket;
-import static algorithm.Client2.room;
-import static algorithm.Client2.sendToServer;
+import static algorithm.Client2.*;
 import static java.lang.Thread.sleep;
 
 /**
  * Kelas utama program dengan Graphical User Interface
  */
 public class Main extends JFrame {
+    public final static int INTERVAL = 1000;
+
     // Atribut GUI
     private JLayeredPane layers;
     private HomePage homePage;
@@ -55,6 +56,7 @@ public class Main extends JFrame {
     private PlayerWinWindow playerWinWindow;
     private HostNameWindow hostNameWindow;
     private EmptyWindow emptyWindow;
+    private static Frame chatBox;
 
     // Atribut penggambaran
     private ArrayList<String> characterFileNames;
@@ -62,10 +64,9 @@ public class Main extends JFrame {
     private Map roomList;
     private ArrayList<Label> roomLabels;
     private PlayersDetail playersDetail;
-    private int[][] boardValue;
     private Label[][] boardLabels;
     private boolean isConnect;
-    private boolean isGameStart;
+    private boolean isGameFinish;
     private String nickname;
     private String newRoomName;
     private String roomName;
@@ -86,11 +87,9 @@ public class Main extends JFrame {
 
         // Inisiasi nilai
         isConnect = false;
-        isGameStart = false;
         roomList = new TreeMap();
         highScores = new TreeMap();
         playersDetail = new PlayersDetail();
-        boardValue = new int[20][20];
         // TODO inisiasi nilai
         highScores.put("birdie", 100);
         highScores.put("lala", 200);
@@ -103,21 +102,7 @@ public class Main extends JFrame {
         highScores.put("doggie9", 50);
         highScores.put("doggie1", 50);
         highScores.putAll(highScores);
-        playersDetail.add(2,"birdie", false, true);
-        playersDetail.add(3,"doggie", true, false);
-        playersDetail.add(1,"test", false, true);
-        playersDetail.add(2,"birdie", false, true);
-        playersDetail.add(3,"doggie", true, false);
-        playersDetail.add(1,"test", false, true);
-        playersDetail.add(2,"birdie", false, true);
-        playersDetail.add(3,"doggie", true, false);
-        playersDetail.add(1,"test", false, true);
-        playersDetail.add(2,"birdie", false, true);
-        for (int i=0; i<20; i++) {
-            for (int j=0; j<20; j++) {
-                boardValue[i][j] = -1;
-            }
-        }
+
         roomList.put("Room Satu", 2);
         roomList.put("Room Dua", 1);
         roomList.put("Room Tiga", 5);
@@ -263,18 +248,32 @@ public class Main extends JFrame {
 
     // Menangani tampilan dan aksi pada page Room
     public void roomController() throws Exception {
+        // Kirim perintah meminta daftar pemain dari server
+        sendToServer("get-players");
+        sleep(100);
         // Daftar pemain pada room
-        room.getPlayers();
-        // Jumlah pemain aktif pada room
-        int playerNum = Client2.room.countPlayers();
-        if (playerNum > 3) {
-            roomPage.getStartButton().setVisible(false);
+        playersDetail = new PlayersDetail();
+        String masterNickname = room.getMaster().getNickName();
+        for (int i=0; i<room.getPlayers().size(); i++) {
+            Player player = room.getPlayer(i);
+            boolean isMaster = false;
+            if (player.getNickName().equals(masterNickname)) {
+                isMaster = true;
+            }
+            playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
         }
 
+
         layers = new JLayeredPane();
-        roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname, boardValue);
+        roomPage = new RoomPage(roomName, characterFileNames, playersDetail, nickname);
         layers.add(roomPage, new Integer(0));
         setContentPane(layers);
+
+        // Jumlah pemain aktif pada room
+        int playerNum = Client2.room.countPlayers();
+        if (playerNum >= 3) {
+            roomPage.getStartButton().setVisible(false);
+        }
         // Mendeteksi tombol back ditekan
         roomPage.getBackButton().addActionListener(new ActionListener() {
             @Override
@@ -286,7 +285,8 @@ public class Main extends JFrame {
                 }
             }
         });
-        boardHandler();
+        playerAutoRefresher();
+        startGameHandler();
     }
 
     // Prosedur lainnya
@@ -317,17 +317,15 @@ public class Main extends JFrame {
                                 Thread t = new Thread(new Client2.StringGetter());
                                 t.start();
                                 isConnect = true;
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                                isConnect = false;
-                            }
-                            if (isConnect) {
                                 // Simpan nama host baru, tutup window
                                 layers.remove(layers.getIndexOf(hostNameWindow));
                                 homeController();
                                 invalidate();
                                 validate();
-                            } else {
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                                isConnect = false;
+                                // Pesan error
                                 emptyWindow = new EmptyWindow("We can not connect to you :(");
                                 layers.add(emptyWindow, new Integer(2));
                                 setContentPane(layers);
@@ -424,7 +422,7 @@ public class Main extends JFrame {
         for (int i = 0; i < roomLabels.size(); i++) {
             if (e.getSource() == roomLabels.get(i)) {
                 String labelValue = roomLabels.get(i).getText();
-                roomName = labelValue.substring(3);
+                roomName = labelValue;
                 // Kirim perintah gabung room ke server
                 sendToServer("join-room " + roomName);
                 sleep(100);
@@ -473,6 +471,7 @@ public class Main extends JFrame {
                         sleep(100);
                         if (Client2.command[0].equals("success")) {
                             // Player berhasil bergabung ke room sebagai spectator
+                            characterSign = 6;
                             layers.remove(layers.getIndexOf(roleWindow));
                             roomController();
                             invalidate();
@@ -524,7 +523,6 @@ public class Main extends JFrame {
                     sendToServer("join-room " + roomName + " " + role + " " + characterSign);
                 }
                 sleep(100);
-                System.out.println("tes: " + Client2.command[0]);
                 if (Client2.command[0].equals("success")) {
                     // Pemain pindah ke room
                     roomController();
@@ -546,11 +544,28 @@ public class Main extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == roomPage.getStartButton()) {
-                    if (isGameStart) {
-                        emptyWindow = new EmptyWindow("Game start.");
-                        layers.add(emptyWindow, new Integer(layers.highestLayer()+1));
-                        setContentPane(layers);
-                        backFromEmptyWindow(emptyWindow);
+                    // Kirim perintah untuk memulai game
+                    try {
+                        sendToServer("start-game");
+                        sleep(100);
+                        System.out.println("Tes: " + Client2.command[0]);
+                        if (Client2.command[0].equals("fail")) {
+                            // Jumlah pemain < 3 orang
+                            emptyWindow = new EmptyWindow("Waiting for 3 players...");
+                            layers.add(emptyWindow, new Integer(layers.highestLayer()+1));
+                            setContentPane(layers);
+                            backFromEmptyWindow(emptyWindow);
+                        } else {
+                            isGameFinish = false;
+                            emptyWindow = new EmptyWindow("Game start.");
+                            layers.add(emptyWindow, new Integer(layers.highestLayer()+1));
+                            setContentPane(layers);
+                            backFromEmptyWindow(emptyWindow);
+                            boardHandler();
+                            boardAutoRefresher();
+                        }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
                 }
             }
@@ -559,6 +574,11 @@ public class Main extends JFrame {
 
     // Mendeteksi label pada board ditekan
     public void boardHandler() {
+        try {
+            sendToServer("get-board");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         boardLabels = new Label[20][20];
         boardLabels = roomPage.getBoard();
         for (int i = 0; i < 20; i++) {
@@ -566,29 +586,93 @@ public class Main extends JFrame {
                 boardLabels[i][j].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        onMouseClickedBoard(e, boardLabels);
+                        try {
+                            onMouseClickedBoard(e, boardLabels);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
                     }
                 });
             }
         }
     }
 
-    public void onMouseClickedBoard(MouseEvent e, Label[][] boardLabels) {
+    public void onMouseClickedBoard(MouseEvent e, Label[][] boardLabels) throws Exception {
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 20; j++) {
                 if (e.getSource() == boardLabels[i][j]) {
-                    boardValue[i][j] = characterSign;
                     roomPage.setBoardValue(i,j, characterSign);
-                    // TODO board sudah terisi/belum, apakah client menang, ganti giliran
-//                    if (true) {
-//                        emptyWindow = new EmptyWindow("You win.");
-//                        backFromEmptyWindow(emptyWindow);
-//                        layers.add(emptyWindow, new Integer(1));
-//                        setContentPane(layers);
-//                    }
+
+                    // Kirim perintah isi board ke server
+                    sendToServer("update-board " + i + " " + j);
+                    if (Client2.command[0].equals("fail")) {
+                        emptyWindow = new EmptyWindow("It is not your turn.");
+                        backFromEmptyWindow(emptyWindow);
+                        layers.add(emptyWindow, new Integer(1));
+                        setContentPane(layers);
+                    } else if (Client2.command[0].equals("win-game")) {
+                        isGameFinish = true;
+                        if (Client2.command[1].equals(nickname)) {
+                            // Pemain menang
+                            playerWinWindow = new PlayerWinWindow();
+                            layers.add(emptyWindow, new Integer(1));
+                            setContentPane(layers);
+                            backFromPlayerWinWindow(playerWinWindow);
+                        } else {
+                            // Pemain lain menang
+                            otherWinWindow = new OtherWinWindow(Client2.command[1]);
+                            layers.add(emptyWindow, new Integer(1));
+                            setContentPane(layers);
+                            backFromOtherWinWindow(otherWinWindow);
+                        }
+                    }
+
+                    // Kirim perintah update board lokal
+                    sendToServer("get-board");
                 }
             }
         }
+    }
+
+    // Auto refresh player setiap interval tertentu
+    public void playerAutoRefresher() {
+        // Timer
+        Timer timer = new Timer(INTERVAL, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                //Refresh the panel
+                // Kirim perintah meminta daftar pemain dari server
+                try {
+                    roomController();
+//                    roomPage.revalidate();
+//                    roomPage.repaint();
+//                    setContentPane(roomPage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (room.isGameStart()) {
+                    ((Timer)evt.getSource()).stop();
+                }
+            }
+        });
+        timer.start();
+    }
+
+    // Auto refresh room setiap interval tertentu
+    public void boardAutoRefresher() {
+        // Timer
+        Timer timer = new Timer(INTERVAL, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                //Refresh the panel
+                roomPage.refreshBoard();
+                roomPage.revalidate();
+
+                if (isGameFinish) {
+                    ((Timer)evt.getSource()).stop();
+                }
+            }
+        });
+        timer.start();
     }
 
     public void play() {
@@ -601,6 +685,32 @@ public class Main extends JFrame {
 
     // Mengembalikan ke window sebelumnya apabila tombol check ditekan
     public void backFromEmptyWindow(EmptyWindow messagePage) {
+        messagePage.getYesButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == messagePage.getYesButton()) {
+                    layers.remove(layers.getIndexOf(messagePage));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    public void backFromPlayerWinWindow(PlayerWinWindow messagePage) {
+        messagePage.getYesButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == messagePage.getYesButton()) {
+                    layers.remove(layers.getIndexOf(messagePage));
+                    setContentPane(layers);
+                    invalidate();
+                    validate();
+                }
+            }
+        });
+    }
+    public void backFromOtherWinWindow(OtherWinWindow messagePage) {
         messagePage.getYesButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -646,5 +756,16 @@ public class Main extends JFrame {
     // Program utama
     public static void main(String[] args) {
         Main mainFrame = new Main();
+//        chatBox = new JFrame("Chat Box");
+//        chatBox.setSize(300,400);
+//        chatBox.setLocationRelativeTo(mainFrame);
+//        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+//        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+//        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+//        int x = (int) rect.getMaxX() - mainFrame.getWidth();
+//        int y = (int) rect.getMaxY() - mainFrame.getHeight();
+//        chatBox.setLocation(x, y);
+//        chatBox.pack();
+//        chatBox.setVisible(true);
     }
 }

@@ -68,9 +68,8 @@ public class MenuPage extends BackgroundPanel {
         roomListPanel.setLayout(new GridLayout(roomList.size(), 2, 0, 20));
 
         labels = new ArrayList<>();
-        int idRoom = 1;
         for (Object key : roomList.keySet()) {
-            String roomName = idRoom + ".   " + key;
+            String roomName = (String) key;
             Label roomNameLabel = new Label(roomName);
             roomNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
             roomNameLabel.setBorder(new EmptyBorder(0,70,0,0));
@@ -85,7 +84,6 @@ public class MenuPage extends BackgroundPanel {
                 roomMember = roomList.get(key) + " person";
             }
             roomListPanel.add(new Label(roomMember));
-            idRoom++;
         }
 
         // Finalisasi
