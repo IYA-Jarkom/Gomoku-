@@ -83,6 +83,7 @@ public class Client2 {
     }
     public static void parsechat(String req) throws IOException{
         chat=req.split("\\s+");
+        System.out.print(chat[1] + " : "+chat[2]);
     }
     public static void parse(String req) throws IOException {
         // Memisahkan req berdasarkan spasi
