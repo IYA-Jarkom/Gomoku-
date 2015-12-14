@@ -58,32 +58,57 @@ public class Client2 {
         // Memisahkan req berdasarkan spasi
         String[] command = req.split("\\s+");
         
-        if (command[0].equals("room")) {
-            String stringFromServer;
-            Point position = new Point();
-            
-            room.setName(command[1]);
-            
-            // Menerima data player dalam room
-            for (int i = 0; i < Integer.parseInt(command[2]); i++) {
-                stringFromServer = objectFromServer.readLine();
-                String[] playerData = stringFromServer.split("\\s+");
-                room.addPlayers(new Player(playerData[0], Integer.parseInt(playerData[1]), Integer.parseInt(playerData[2])));
+        if (command[1].equals("add-user")) {
+            if (command[0].equals("success")) {
+                // Penambahan client ke dalam game berhasil
+                player = new Player(command[2], 0, 0);
+                player.setClientName(Integer.parseInt(command[3]));
             }
+        } else if (command[1].equals("create-room")) {
+            if (command[0].equals("success")) {
+                // Pembuatan room berhasil
+                room = new Room(command[2], player);
+                player.setRoomName(Integer.parseInt(command[3]));
+            }
+        } else if (command[1].equals("join-room")) {
+            if (command[0].equals("success")) {
+                // Join room berhasil
+                room = new Room(command[2], new Player(command[3], 0, 0));
+                player.setRoomName(Integer.parseInt(command[4]));
+            }
+        } else if (command[0].equals("players")) {
+            // Menerima data player dalam room
+            int playerIndex = 2;
             
-            room.setMaster(new Player(room.getPlayer(0).getNickName(), room.getPlayer(0).getWinNumber(), room.getPlayer(0).getLoseNumber()));
-            
+            room.clearPlayers();
+            for (int i = 0; i < Integer.parseInt(command[1]); i++) {
+                room.addPlayers(new Player(command[playerIndex], Integer.parseInt(command[playerIndex+1]), Integer.parseInt(command[playerIndex+2])));
+                playerIndex += 3;
+            }
+        } else if (command[0].equals("board")) {
             // Menerima isi board di room
+            Point position = new Point();
+            int boardIndex = 1;
+            
             for (int i = 0; i < 20; i++) {
-                stringFromServer = objectFromServer.readLine();
-                String[] boardElement = stringFromServer.split("\\s+");
                 for (int j = 0; j < 20; j++) {
                     position.setLocation(i, j);
-                    room.getBoard().setBoardElement(position, Integer.parseInt(boardElement[j]));
+                    room.getBoard().setBoardElement(position, Integer.parseInt(command[boardIndex]));
+                    boardIndex++;
                 }
             }
+        } else if (command[1].equals("start-game")) {
+            if (command[0].equals("success")) {
+                // Game dimulai
+                room.isOpen(false);
+                room.isGameStart(true);
+            } else {
+                // Game belum boleh dimulai
+                room.isGameStart(false);
+            }
         } else if (command[0].equals("turn")) {
-            
+            // Menerima indeks player yang mendapat turn
+            room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
         }
     }
 
@@ -94,49 +119,11 @@ public class Client2 {
         outToServer.print(msg + '\n');
         outToServer.flush();
     }
-    
-    private static void waitInRoom() throws Exception {
-        String stringFromServer, inputFromUser;
-        
-        sendToServer("enter "+player.getRoomID()+" "+player.getNickName());
-        System.out.println(player.getNickName()+" masuk room");
-        // Menerima nama room dan jumlah player dalam room
-        stringFromServer = objectFromServer.readLine();
-        parse(stringFromServer);
-
-        if (room.getMaster().getNickName().equals(player.getNickName())) {
-            // Client adalah room master
-            while (!room.isGameStart()) {
-                inputFromUser = scan.nextLine();
-                sendToServer("start "+player.getRoomID());
-                
-                // Menerima keputusan start game dari server
-                stringFromServer = objectFromServer.readLine();
-                if (stringFromServer.equals("yes")) {
-                    System.out.println("Game dimulai");
-                    room.isOpen(false);
-                    room.isGameStart(true);
-                } else {
-                    System.out.println("Game tidak boleh dimulai");
-                }
-            }
-        }
-    }
-    
-    private static void playingGame() throws Exception {
-        String stringFromServer;
-        
-        while (room.isGameStart()) {
-            sendToServer("play "+player.getRoomID());
-            stringFromServer = objectFromServer.readLine();
-            parse(stringFromServer);
-        }
-    }
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, Exception {
         Scanner scan = new Scanner(System.in);
 
         System.out.print("Input server IP hostname : ");
@@ -145,59 +132,10 @@ public class Client2 {
         Thread t = new Thread(new StringGetter());
         t.start();
         while (true) {
-            PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             System.out.print("COMMAND : ");
             //send msg to server
             String msg = scan.nextLine();
-            outToServer.print(msg + '\n');
-            outToServer.flush();
+            sendToServer(msg);
         }
     }
-
-/*
-    public static void main(String[] args) {
-        try {
-            scan = new Scanner(System.in);
-            String stringFromServer;
-
-            System.out.print("Input server IP hostname : ");
-            String host=scan.nextLine();
-            clientSocket = new Socket(host, 2000);
-
-            objectFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            //----------------------------
-            // Untuk testing
-            String inputFromUser;
-            // Meminta nama player
-            System.out.println("Masukkan nama");
-            inputFromUser = scan.nextLine();
-            player = new Player(inputFromUser, 0, 0);
-            // Meminta nomor room
-            System.out.println("Masukkan nomor room. -1 jika ingin membuat room baru");
-            inputFromUser = scan.nextLine();
-            if (Integer.parseInt(inputFromUser) < 0) {
-                // Membuat room baru
-                System.out.println("Masukkan nama room");
-                inputFromUser = scan.nextLine();
-                sendToServer("create-room "+inputFromUser+" "+player.getNickName());
-                stringFromServer = objectFromServer.readLine();
-                player.setRoomName(Integer.parseInt(stringFromServer));
-                System.out.println("Berhasil membuat room baru");
-            } else {
-                player.setRoomName(Integer.parseInt(inputFromUser));
-            }
-            room = new Room();
-            //----------------------------
-            
-            // User berada di room
-//            while (true) {
-                waitInRoom();
-                //playingGame();
-//            }
-        } catch (Exception e) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
-*/
 }

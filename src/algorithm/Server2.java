@@ -50,13 +50,23 @@ public class Server2 {
         }
 
         public void Parse(String req) throws Exception {
-
             String[] command = req.split("\\s+");
+            
             if (command[0].equals("create-room")) {
+                String stringToClient;
+                
                 listRoom.add(new Room(command[1], listPlayer.get(idPlayer)));
                 listRoom.get(listRoom.size() - 1).addPlayers(listPlayer.get(idPlayer));
                 idRoom = listRoom.size() - 1;
-                SendToClient("success create-room");
+                listPlayer.get(idPlayer).setRoomName(idRoom);
+                SendToClient("success create-room "+command[1]+" "+idRoom);
+                
+                // Mengirim data player dalam room
+                stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
+                for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
+                    stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
+                }
+                SendToClient(stringToClient);
             } else if (command[0].equals("add-user")) {
                 boolean permit = true;
                 for (int i = 0; i < listPlayer.size(); i++) {
@@ -68,8 +78,9 @@ public class Server2 {
                 if (!permit) {
                     idPlayer = listPlayer.size();
                     listPlayer.add(new Player(command[1], 0, 0));
+                    listPlayer.get(idPlayer).setClientName(idClient);
 
-                    SendToClient("success add-user");
+                    SendToClient("success add-user "+command[1]+" "+idClient);
                 } else {
                     SendToClient("fail add-user");
                 }
@@ -81,47 +92,120 @@ public class Server2 {
                 SendToClient(str);
             } else if (command[0].equals("join-room")) {
                 int id = Integer.parseInt(command[1]);
-                listRoom.get(id).addPlayers(listPlayer.get(idPlayer));
-
-            } else if (command[0].equals("enter")) {
-                String stringToClient;
-                Point position = new Point();
-
-                System.out.println(command[2] + " masuk room " + listRoom.get(Integer.parseInt(command[1])).getName());
-
-                // Menambahkan player ke dalam list player di room
-                listRoom.get(Integer.parseInt(command[1])).addPlayers(new Player(command[2], 0, 0));
-
-                // Mengirim nama room dan jumlah player dalam room
-                SendToClient("room " + listRoom.get(Integer.parseInt(command[1])).getName() + " " + listRoom.get(Integer.parseInt(command[1])).countPlayers());
-
-                // Mengirim data player dalam room
-                for (int i = 0; i < listRoom.get(Integer.parseInt(command[1])).countPlayers(); i++) {
-                    SendToClient(listRoom.get(Integer.parseInt(command[1])).getPlayer(i).getNickName() + " " + listRoom.get(Integer.parseInt(command[1])).getPlayer(i).getWinNumber() + " " + listRoom.get(Integer.parseInt(command[1])).getPlayer(i).getLoseNumber());
-                }
-
-                // Mengirim isi board di room
-                for (int i = 0; i < 20; i++) {
-                    stringToClient = "";
-                    for (int j = 0; j < 20; j++) {
-                        position.setLocation(i, j);
-                        stringToClient += listRoom.get(Integer.parseInt(command[1])).getBoard().getBoardElement(position);
-                        stringToClient += " ";
+                if (listRoom.get(id).isOpen()) {
+                    // Client boleh masuk ke dalam room
+                    String stringToClient;
+                    idRoom = id;
+                    listRoom.get(idRoom).addPlayers(listPlayer.get(idPlayer));
+                    listPlayer.get(idPlayer).setRoomName(idRoom);
+                    
+                    // Mengirim nama room, nama masternya, dan id room
+                    SendToClient("success join-room " + listRoom.get(idRoom).getName() + " " + listRoom.get(idRoom).getMaster().getNickName()+" "+idRoom);
+                    // Mengirim data player dalam room ke semua client
+                    stringToClient = "players "+listRoom.get(idRoom).countPlayers()+" ";
+                    for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
+                        stringToClient += listRoom.get(idRoom).getPlayer(i).getNickName()+" "+listRoom.get(idRoom).getPlayer(i).getWinNumber()+" "+listRoom.get(idRoom).getPlayer(i).getLoseNumber()+" ";
                     }
-                    SendToClient(stringToClient);
-                }
-            } else if (command[0].equals("start")) {
-                // Jika jumlah pemain >= 3, maka game boleh dimulai
-                if (listRoom.get(Integer.parseInt(command[1])).countPlayers() >= 3) {
-                    SendToClient("yes");
-                } else {
-                    SendToClient("no");
-                }
-            } else if (command[0].equals("play")) {
-                // Giliran pertama adalah room master, selanjutnya mengikuti arraylist
-                listRoom.get(Integer.parseInt(command[1])).setTurn(listRoom.get(Integer.parseInt(command[1])).getMaster());
-                SendToClient("turn " + listRoom.get(Integer.parseInt(command[1])).turn().getNickName());
+                    
+                    for (int i = 0; i < listClient.size(); i++) {
+                        if (listClient.get(i).idRoom == idRoom) {
+                            sendToSpesificClient(stringToClient, i);
+                        }
+                    }
 
+//                    // Mengirim isi board di room
+//                    stringToClient = "board ";
+//                    for (int i = 0; i < 20; i++) {
+//                        for (int j = 0; j < 20; j++) {
+//                            position.setLocation(i, j);
+//                            stringToClient += listRoom.get(Integer.parseInt(command[1])).getBoard().getBoardElement(position)+" ";
+//                        }
+//                    }
+//                    SendToClient(stringToClient);
+                }
+            } else if (command[0].equals("start-game")) {
+                if (listRoom.get(idRoom).getMaster().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
+                    // Client adalah master, boleh menginisiasi game
+                    if (listRoom.get(idRoom).countPlayers() >= 3) {
+                        // Pemain sudah cukup untuk memulai game
+                        listRoom.get(idRoom).isOpen(false);
+                        listRoom.get(idRoom).isGameStart(true);
+                        listRoom.get(idRoom).setTurn(listPlayer.get(idPlayer));
+                        SendToClient("success start-game");
+                        // Mengirim indeks player yang mendapat turn
+                        SendToClient("turn "+"0");
+                    } else {
+                        // Pemain belum cukup untuk memulai game
+                        listRoom.get(idRoom).isGameStart(false);
+                        SendToClient("fail start-game");
+                    }
+                }
+            } else if (command[0].equals("board")) {
+                Point position = new Point();
+                int turn = Integer.parseInt(command[4]);
+                
+                // Mengupdate board sesuai permintaan client
+                position.setLocation(Integer.parseInt(command[1]), Integer.parseInt(command[2]));
+                if (listRoom.get(Integer.parseInt(command[3])).getBoard().getBoardElement(position) == -1) {
+                    // Posisi board boleh diisi
+                    listRoom.get(Integer.parseInt(command[3])).getBoard().setBoardElement(position, Integer.parseInt(command[4]));
+                    
+                    // Mengirim isi board yang diupdate ke setiap client
+                    for (int i = 0; i < listClient.size(); i++) {
+                        sendToSpesificClient("board update", i);
+                    }
+                    
+                    for (int i = 0; i < 20; i++) {
+                        String boardElement = "";
+                        
+                        for (int j = 0; j < 20; j++) {
+                            position.setLocation(i, j);
+                            boardElement += listRoom.get(Integer.parseInt(command[3])).getBoard().getBoardElement(position);
+                            boardElement += " ";
+                        }
+                        
+                        for (int j = 0; j < listClient.size(); j++) {
+                            sendToSpesificClient(boardElement, j);
+                        }
+                        
+                        // Mengecek status game
+                        if (listRoom.get(Integer.parseInt(command[3])).getBoard().checkWinner(position) >= 0) {
+                            listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).setWinNumber(listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getWinNumber()+1);
+                            listRoom.get(Integer.parseInt(command[3])).isGameStart(false);
+                        } else {
+                            listRoom.get(Integer.parseInt(command[3])).isGameStart(true);
+                            
+                            // Giliran pemain selanjutnya
+                            if ((turn+1) == listRoom.get(Integer.parseInt(command[3])).countPlayers()) {
+                                turn = 0;
+                            } else {
+                                turn++;
+                            }
+                        }
+                    }
+                } else {
+                    // Posisi board tidak boleh diisi
+                    // Mengirim tanda bahwa board tidak diupdate
+                    for (int i = 0; i < listClient.size(); i++) {
+                        sendToSpesificClient("boardnotupdate", i);
+                    }
+                }
+                
+                // Mengirim status game
+                if (listRoom.get(Integer.parseInt(command[3])).isGameStart()) {
+                    // Game masih berjalan
+                    for (int i = 0; i < listClient.size(); i++) {
+                        sendToSpesificClient("notstop", i);
+                    }
+                } else {
+                    // Game berhenti
+                    for (int i = 0; i < listClient.size(); i++) {
+                        sendToSpesificClient("stop "+turn+" "+listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getNickName()+" "+listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getWinNumber(), i);
+                    }
+                }
+                
+                // Mengirim turn player untuk bermain
+                SendToClient("turn "+turn);
             } else {
 
                 SendToClient("unknown command");
@@ -156,7 +240,7 @@ public class Server2 {
         }
     }
 
-    public void sendToSpesificClient(String str, int x) throws Exception {
+    public static void sendToSpesificClient(String str, int x) throws Exception {
         //untuk kirim move dari 1 client ke semua client dalam room
         listClient.get(x).SendToClient(str);
     }
