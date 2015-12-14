@@ -46,9 +46,12 @@ public class Client2 {
                 String response;
                 while (true) {
                     response = inFromServer.readLine();
-                    System.out.println(response);
-                    parse(response);
-
+                    if (response.charAt(0) == ':') {
+                        parsechat(response);
+                    } else {
+                        System.out.println(response);
+                        parse(response);
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,27 +60,31 @@ public class Client2 {
     }
 
     public static String[] command;
-
+    public static String[] chat;
     // Method
     public static TreeMap<String, Integer> StringToTreeMap(String[] str) {
         TreeMap<String, Integer> tmap
                 = new TreeMap<String, Integer>();
         int count = str.length / 2;
         for (int i = 0; i < count; i++) {
-            tmap.put(str[(i*2) +1], Integer.parseInt(str[(i*2) +2]));
+            tmap.put(str[(i * 2) + 1], Integer.parseInt(str[(i * 2) + 2]));
         }
         return tmap;
     }
+
     public static TreeMap<String, Integer> StringToHighscore(String[] str) {
         TreeMap<String, Integer> tmap
                 = new TreeMap<String, Integer>();
         int count = str.length / 2;
         for (int i = 0; i < count; i++) {
-            tmap.put(str[(i*2) +1], Integer.parseInt(str[(i*2) +2]));
+            tmap.put(str[(i * 2) + 1], Integer.parseInt(str[(i * 2) + 2]));
         }
         return tmap;
     }
-
+    public static void parsechat(String req) throws IOException{
+        chat=req.split("\\s+");
+        System.out.print(chat[1] + " : "+chat[2]);
+    }
     public static void parse(String req) throws IOException {
         // Memisahkan req berdasarkan spasi
 
@@ -95,7 +102,7 @@ public class Client2 {
             }
 
         } else if (command[0].equals("highscore")) {
-            
+
         } else if (command[1].equals("create-room")) {
             if (command[0].equals("success")) {
                 // Pembuatan room berhasil
