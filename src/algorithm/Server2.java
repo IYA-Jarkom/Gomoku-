@@ -185,16 +185,15 @@ public class Server2 {
                     }
                 }
             } else if (command[0].equals("update-board")) {
+                int turnIndex = 0;
                 Point position = new Point();
-                int turn = Integer.parseInt(command[4]);
                 
-                if (listRoom.get(idRoom).isGameStart() && listRoom.get(idRoom).turn().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
+                if (listRoom.get(idRoom).turn().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
                     // Client boleh mengupdate board
                     position.setLocation(Integer.parseInt(command[1]), Integer.parseInt(command[2]));
                     if (listRoom.get(idRoom).getBoard().getBoardElement(position) == -1) {
                         // Posisi board boleh diisi
                         // Mencari indeks client pada list player di room
-                        int turnIndex = 0;
                         String stringToClient;
                         
                         for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
@@ -203,8 +202,41 @@ public class Server2 {
                                 break;
                             }
                         }
-                        listRoom.get(idRoom).getBoard().setBoardElement(position, turnIndex);
+                        listRoom.get(idRoom).getBoard().setBoardElement(position, listPlayer.get(idPlayer).getCharacter());
 
+                        // Mengecek apakah client menang
+                        if (listRoom.get(idRoom).getBoard().checkWinner(position) >= 0) {
+                            // Client menang. Game berhenti
+                            listRoom.get(idRoom).getPlayer(turnIndex).setWinNumber(listRoom.get(idRoom).getPlayer(turnIndex).getWinNumber()+1);
+                            listPlayer.get(idPlayer).setWinNumber(listPlayer.get(idPlayer).getWinNumber()+1);
+                            listRoom.get(idRoom).clearBoard();
+                            listRoom.get(idRoom).isGameStart(false);
+                            
+                            // Mengirim data pemenang ke semua client di room
+                            for (int i = 0; i < listClient.size(); i++) {
+                                if (listClient.get(i).idRoom == idRoom) {
+                                    sendToSpesificClient("win-game "+listPlayer.get(idPlayer).getNickName()+" "+turnIndex, i);
+                                }
+                            }
+                        } else {
+                            // Client belum menang. Game masih berlanjut
+                            listRoom.get(idRoom).isGameStart(true);
+                            
+                            // Mengganti giliran pemain
+                            if ((turnIndex+1) == listRoom.get(idRoom).countPlayers()) {
+                                turnIndex = 0;
+                            } else {
+                                turnIndex++;
+                            }
+                            
+                            // Mengirim data giliran pemain selanjutnya ke semua client di room
+                            for (int i = 0; i < listClient.size(); i++) {
+                                if (listClient.get(i).idRoom == idRoom) {
+                                    sendToSpesificClient("turn "+turnIndex, i);
+                                }
+                            }
+                        }
+                        
                         // Mengirim isi board yang diupdate ke setiap client
                         stringToClient = "update-board ";
                         for (int i = 0; i < 20; i++) {
@@ -218,49 +250,10 @@ public class Server2 {
                                 sendToSpesificClient(stringToClient, i);
                             }
                         }
-
-//                            for (int j = 0; j < listClient.size(); j++) {
-//                                sendToSpesificClient(boardElement, j);
-//                            }
-//
-//                            // Mengecek status game
-//                            if (listRoom.get(Integer.parseInt(command[3])).getBoard().checkWinner(position) >= 0) {
-//                                listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).setWinNumber(listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getWinNumber()+1);
-//                                listRoom.get(Integer.parseInt(command[3])).isGameStart(false);
-//                            } else {
-//                                listRoom.get(Integer.parseInt(command[3])).isGameStart(true);
-//
-//                                // Giliran pemain selanjutnya
-//                                if ((turn+1) == listRoom.get(Integer.parseInt(command[3])).countPlayers()) {
-//                                    turn = 0;
-//                                } else {
-//                                    turn++;
-//                                }
-//                            }
-//                        }
-                    } else {
-                        // Posisi board tidak boleh diisi
-                        // Mengirim tanda bahwa board tidak diupdate
-                        for (int i = 0; i < listClient.size(); i++) {
-                            sendToSpesificClient("boardnotupdate", i);
-                        }
                     }
-
-                    // Mengirim status game
-                    if (listRoom.get(Integer.parseInt(command[3])).isGameStart()) {
-                        // Game masih berjalan
-                        for (int i = 0; i < listClient.size(); i++) {
-                            sendToSpesificClient("notstop", i);
-                        }
-                    } else {
-                        // Game berhenti
-                        for (int i = 0; i < listClient.size(); i++) {
-                            sendToSpesificClient("stop "+turn+" "+listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getNickName()+" "+listRoom.get(Integer.parseInt(command[3])).getPlayer(turn).getWinNumber(), i);
-                        }
-                    }
-
-                    // Mengirim turn player untuk bermain
-                    SendToClient("turn "+turn);
+                } else {
+                    // Bukan giliran client untuk mengupdate board
+                    SendToClient("fail update-board");
                 }
             }else if(command[0].equals("get-highscore")){
                 String str="highscore ";

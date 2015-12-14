@@ -147,7 +147,15 @@ public class Client2 {
             }
         } else if (command[0].equals("turn")) {
             // Menerima indeks player yang mendapat turn
+            room.isGameStart(true);
             room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
+        } else if (command[0].equals("win-game")) {
+            // Menerima data pemenang game
+            room.getPlayer(Integer.parseInt(command[2])).setWinNumber(room.getPlayer(Integer.parseInt(command[2])).getWinNumber()+1);
+            if (player.getNickName().equals(command[1])) {
+                player.setWinNumber(player.getWinNumber()+1);
+            }
+            room.isGameStart(false);
         }
     }
 

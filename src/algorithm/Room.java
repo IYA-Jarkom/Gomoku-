@@ -123,4 +123,8 @@ public class Room implements Serializable {
     public void clearPlayers() {
         players.clear();
     }
+    
+    public void clearBoard() {
+        board = new Board();
+    }
 }
