@@ -49,7 +49,6 @@ public class RoomPage extends BackgroundPanel {
         // Button back
         backButton = new ImageButton("button-back.png");
         headerPanel.add(backButton.getButton());
-        System.out.println("l: " + roomName);
         headerPanel.add(new Label(roomName, "white", 40));
         infoPanel.add(headerPanel);
 
