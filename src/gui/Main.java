@@ -248,7 +248,7 @@ public class Main extends JFrame {
 
     // Menangani tampilan dan aksi pada page Room
     public void roomController() throws Exception {
-        if (!room.isGameStart()) {
+//        if (!room.isGameStart()) {
             // Kirim perintah untuk mendapatkan daftar pemain
             sendToServer("get-players");
             sleep(100);
@@ -256,6 +256,10 @@ public class Main extends JFrame {
             // Isi daftar pemain
             playersDetail = new PlayersDetail();
             String masterNickname = room.getMaster().getNickName();
+            if (!nickname.equals(masterNickname)) {
+                // Bukan player master
+                roomPage.getStartButton().setVisible(false);
+            }
             for (int i = 0; i < room.getPlayers().size(); i++) {
                 Player player = room.getPlayer(i);
                 boolean isMaster = false;
@@ -263,7 +267,11 @@ public class Main extends JFrame {
                     isMaster = true;
                 }
                 // Tambah player baru
-                playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
+                boolean isTurn = false;
+                if (player.getNickName().equals(room.turn().getNickName())) {
+                    isTurn = true;
+                }
+                playersDetail.add(player.getCharacter(), player.getNickName(), isTurn, isMaster);
             }
             // Menampilkan tombol start game bila pemain adalah master room
             if (nickname.equals(room.getMaster())) {
@@ -293,15 +301,13 @@ public class Main extends JFrame {
                 }
             });
             startGameHandler();
-        } else {
-            roomPage.getStartButton().setVisible(false);
+//        } else {
             boardHandler();
             roomPage.refreshBoard();
             roomPage.repaint();
             roomPage.revalidate();
-        }
+//        }
     }
-
     // Auto refresh player setiap interval tertentu
     public void playersAutoRefresher() throws Exception {
         // Kirim perintah untuk mendapatkan daftar pemain
@@ -317,8 +323,13 @@ public class Main extends JFrame {
             if (player.getNickName().equals(masterNickname)) {
                 isMaster = true;
             }
+            boolean isTurn = false;
+            System.out.println("---turn: " + player.getNickName());
+            if (player.getNickName().equals(room.turn().getNickName())) {
+                isTurn = true;
+            }
             // Tambah player baru
-            playersDetail.add(player.getCharacter(), player.getNickName(), false, isMaster);
+            playersDetail.add(player.getCharacter(), player.getNickName(), isTurn, isMaster);
         }
         // Menampilkan tombol start game bila pemain adalah master room
         if (nickname.equals(room.getMaster())) {
@@ -342,7 +353,6 @@ public class Main extends JFrame {
                     //Refresh player panel
                 } else {
                     // Refresh board panel
-//                    roomPage.removeAll();
                     // Kirim perintah update board lokal
                     try {
                         sendToServer("get-board");
@@ -352,6 +362,23 @@ public class Main extends JFrame {
                 }
 
                 if (isGameFinish) {
+                    try {
+                        roomController();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    isGameStart = room.isGameStart();
+                    if (!isGameStart) {
+                        //Refresh player panel
+                    } else {
+                        // Refresh board panel
+                        // Kirim perintah update board lokal
+                        try {
+                            sendToServer("get-board");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     ((Timer)evt.getSource()).stop();
                 }
             }
@@ -652,13 +679,13 @@ public class Main extends JFrame {
                             setContentPane(layers);
                             backFromEmptyWindow(emptyWindow);
                         } else {
+                            // Game berhasil dimulai, set turn menjadi master
                             isGameFinish = false;
                             emptyWindow = new EmptyWindow("Game start.");
                             layers.add(emptyWindow, new Integer(layers.highestLayer()+1));
                             setContentPane(layers);
                             backFromEmptyWindow(emptyWindow);
-                            boardHandler();
-                            boardAutoRefresher();
+                            playersAutoRefresher();
                         }
                     } catch (Exception e1) {
                         e1.printStackTrace();
@@ -670,11 +697,7 @@ public class Main extends JFrame {
 
     // Mendeteksi label pada board ditekan
     public void boardHandler() {
-        try {
-            sendToServer("get-board");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println("masukkk");
         boardLabels = new Label[20][20];
         boardLabels = roomPage.getBoard();
         for (int i = 0; i < 20; i++) {
@@ -693,21 +716,33 @@ public class Main extends JFrame {
         }
     }
 
+    private boolean isPopUp = false;
+    private int iBefore = -2;
+    private int jBefore = -2;
     public void onMouseClickedBoard(MouseEvent e, Label[][] boardLabels) throws Exception {
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 20; j++) {
                 if (e.getSource() == boardLabels[i][j]) {
-                    roomPage.setBoardValue(i,j, characterSign);
-
                     // Kirim perintah isi board ke server
                     sendToServer("update-board " + i + " " + j);
+                    if (iBefore==i && jBefore==j) {
+                        isPopUp = true;
+                    } else {
+                        isPopUp = false;
+                        iBefore = i;
+                        jBefore = j;
+                    }
                     System.out.println("aaaaaaaaaaaaaaaaaaaa");
                     if (Client2.command[0].equals("fail")) {
-                        emptyWindow = new EmptyWindow("It is not your turn.");
-                        backFromEmptyWindow(emptyWindow);
-                        layers.add(emptyWindow, new Integer(1));
-                        setContentPane(layers);
+                        System.out.println("-------------faaaaaaaaaillllllll");
+//                        if (!isPopUp) {
+                            emptyWindow = new EmptyWindow("It is not your turn.");
+                            backFromEmptyWindow(emptyWindow);
+                            layers.add(emptyWindow, new Integer(1));
+                            setContentPane(layers);
+//                        }
                     } else if (Client2.command[0].equals("win-game")) {
+                        System.out.println("-----------winnnnnnnnnn");
                         isGameFinish = true;
                         if (Client2.command[1].equals(nickname)) {
                             // Pemain menang
@@ -725,9 +760,6 @@ public class Main extends JFrame {
                     } else if (Client2.command[0].equals("turn")) {
                         /// TODO ini apa
                     }
-
-                    // Kirim perintah update board lokal
-                    sendToServer("get-board");
                 }
             }
         }

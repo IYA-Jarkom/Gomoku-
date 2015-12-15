@@ -46,10 +46,10 @@ public class Client2 {
                 String response;
                 while (true) {
                     response = inFromServer.readLine();
-//                    if (response.length()>12) {
-//                        if (response.substring(0,12).equals("update-board"))
-                        System.out.println(response);
-                    ///}
+                    if (response.length()>12) {
+                        if (!response.substring(0,12).equals("update-board"))
+                            System.out.println(response);
+                    }
                     parse(response);
 
                 }
@@ -78,9 +78,9 @@ public class Client2 {
         command = req.split("\\s+");
 
         if (command[0].equals("list-of-room")) {
-            for (int i = 0; i < command.length; i++) {
-                System.out.println(command[i]);
-            }
+//            for (int i = 0; i < command.length; i++) {
+//                System.out.println(command[i]);
+//            }
         } else if (command[0].equals("highscore")) {
 
         } else if (command[0].equals("win-game")) {
@@ -165,7 +165,7 @@ public class Client2 {
 
         System.out.print("Input server IP hostname : ");
         String host = scan.nextLine();
-        clientSocket = new Socket(host, 2020);
+        clientSocket = new Socket(host, 2000);
         Thread t = new Thread(new StringGetter());
         t.start();
         while (true) {

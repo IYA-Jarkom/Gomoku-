@@ -52,7 +52,7 @@ public class Server2 {
 
         public void Parse(String req) throws Exception {
             String[] command = req.split("\\s+");
-            
+
             if (command[0].equals("chat")){
                 String str=": ";
                 str=str+listPlayer.get(idPlayer).getNickName()+" "+command[1];
@@ -112,7 +112,7 @@ public class Server2 {
                 // Mengirim isi board yang diupdate ke setiap client
                 Point position = new Point();
                 String stringToClient = "update-board ";
-                
+
                 for (int i = 0; i < 20; i++) {
                     for (int j = 0; j < 20; j++) {
                         position.setLocation(i, j);
@@ -281,7 +281,7 @@ public class Server2 {
                 String request;
                 while ((request = inFromClient.readLine()) != null) {
                     if (!request.equals("get-board") && !request.equals("get-players"))
-                    System.out.println(request);
+                        System.out.println(request);
                     if (request.equals("")) {
                         System.out.println("kosong");
                     }
@@ -314,7 +314,7 @@ public class Server2 {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        server = new ServerSocket(2020);
+        server = new ServerSocket(2000);
         while (true) {
             Socket socket = server.accept();
             System.out.println("connected");
