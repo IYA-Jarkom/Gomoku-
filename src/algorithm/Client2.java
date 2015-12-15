@@ -117,6 +117,12 @@ public class Client2 {
             room.isGameStart(true);
             room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
 
+        } else if (command[0].equals("stop-game")) {
+            // Ada player lain yang disconnect
+            room.isGameStart(false);
+            room.getPlayers().remove(Integer.parseInt(command[2]));
+            room.setMaster(room.getPlayer(0));
+            System.out.println(command[1]+" disconnect");
         } else if (command[1].equals("add-user")) {
             if (command[0].equals("success")) {
                 // Penambahan client ke dalam game berhasil

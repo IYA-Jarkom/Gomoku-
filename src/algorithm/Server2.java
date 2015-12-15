@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -286,6 +287,42 @@ public class Server2 {
                         System.out.println("kosong");
                     }
                     Parse(request);
+                }
+            } catch (SocketException ex) {
+                // Client disconnect
+                if (idRoom >= 0) {
+                    // Client sudah berada di suatu room
+                    System.out.println(listPlayer.get(idPlayer).getNickName()+" disconnect");
+                    // Menghentikan game
+                    listRoom.get(idRoom).isGameStart(false);
+                    // Mencari indeks client pada arraylist di room
+                    int id = -1;
+                    for (int i = 0; i < listRoom.get(idRoom).countPlayers(); i++) {
+                        if (listRoom.get(idRoom).getPlayer(i).getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
+                            id = i;
+                            break;
+                        }
+                    }
+                    // Menghapus client dari arraylist di room
+                    listRoom.get(idRoom).getPlayers().remove(id);
+                    if (listRoom.get(idRoom).countPlayers() > 0) {
+                        // Room masih ada player
+                        // Mengeset ulang master
+                        listRoom.get(idRoom).setMaster(listRoom.get(idRoom).getPlayer(0));
+                        // Mengirim disconnect ke semua client di room
+                        for (int i = 0; i < listClient.size(); i++) {
+                            if (listClient.get(i).idRoom == idRoom) {
+                                try {
+                                    sendToSpesificClient("stop-game "+listPlayer.get(idPlayer).getNickName()+" "+id, i);
+                                } catch (Exception ex1) {
+                                    Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex1);
+                                }
+                            }
+                        }
+                    } else {
+                        // Room kosong
+                        listRoom.get(idRoom).isOpen(false);
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Server2.class.getName()).log(Level.SEVERE, null, ex);
