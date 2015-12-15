@@ -46,7 +46,10 @@ public class Client2 {
                 String response;
                 while (true) {
                     response = inFromServer.readLine();
-                    System.out.println(response);
+//                    if (response.length()>12) {
+//                        if (response.substring(0,12).equals("update-board"))
+                        System.out.println(response);
+                    ///}
                     parse(response);
 
                 }
@@ -80,6 +83,13 @@ public class Client2 {
             }
         } else if (command[0].equals("highscore")) {
 
+        } else if (command[0].equals("win-game")) {
+            // Menerima data pemenang game
+            room.getPlayer(Integer.parseInt(command[2])).setWinNumber(room.getPlayer(Integer.parseInt(command[2])).getWinNumber()+1);
+            if (player.getNickName().equals(command[1])) {
+                player.setWinNumber(player.getWinNumber()+1);
+            }
+            room.isGameStart(false);
         } else if (command[0].equals("players")) {
             // Menerima data player dalam room
             int playerIndex = 2;
@@ -104,7 +114,9 @@ public class Client2 {
             }
         } else if (command[0].equals("turn")) {
             // Menerima indeks player yang mendapat turn
+            room.isGameStart(true);
             room.setTurn(room.getPlayer(Integer.parseInt(command[1])));
+
         } else if (command[1].equals("add-user")) {
             if (command[0].equals("success")) {
                 // Penambahan client ke dalam game berhasil
@@ -153,7 +165,7 @@ public class Client2 {
 
         System.out.print("Input server IP hostname : ");
         String host = scan.nextLine();
-        clientSocket = new Socket(host, 2000);
+        clientSocket = new Socket(host, 2020);
         Thread t = new Thread(new StringGetter());
         t.start();
         while (true) {

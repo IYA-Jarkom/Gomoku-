@@ -147,7 +147,6 @@ public class RoomPage extends BackgroundPanel {
             for (int j=0; j<20; j++) {
                  if (boardValue[i][j] != room.getBoard().getBoardElement(new Point(i,j))) {
                      // Perlu diupdate
-                     System.out.println("Set " +i+ " " + j+" "+ room.getBoard().getBoardElement(new Point(i,j)));
                      setBoardValue(i,j,room.getBoard().getBoardElement(new Point(i,j)));
                  }
             }

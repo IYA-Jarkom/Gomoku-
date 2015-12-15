@@ -181,9 +181,13 @@ public class Server2 {
                         listRoom.get(idRoom).isOpen(false);
                         listRoom.get(idRoom).isGameStart(true);
                         listRoom.get(idRoom).setTurn(listPlayer.get(idPlayer));
-                        SendToClient("success start-game");
-                        // Mengirim indeks player yang mendapat turn
-                        SendToClient("turn "+"0");
+                        for (int i = 0; i < listClient.size(); i++) {
+                            if (listClient.get(i).idRoom == idRoom) {
+                                sendToSpesificClient("success start-game", i);
+                                // Mengirim indeks player yang mendapat turn
+                                sendToSpesificClient("turn "+"0", i);
+                            }
+                        }
                     } else {
                         // Pemain belum cukup untuk memulai game
                         listRoom.get(idRoom).isGameStart(false);
@@ -193,7 +197,7 @@ public class Server2 {
             } else if (command[0].equals("update-board")) {
                 int turnIndex = 0;
                 Point position = new Point();
-
+                System.out.println("Turn--" + listPlayer.get(idPlayer).getNickName());
                 if (listRoom.get(idRoom).turn().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
                     // Client boleh mengupdate board
                     position.setLocation(Integer.parseInt(command[1]), Integer.parseInt(command[2]));
@@ -275,6 +279,7 @@ public class Server2 {
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String request;
                 while ((request = inFromClient.readLine()) != null) {
+                    if (!request.equals("get-board") && !request.equals("get-players"))
                     System.out.println(request);
                     if (request.equals("")) {
                         System.out.println("kosong");
@@ -308,7 +313,7 @@ public class Server2 {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        server = new ServerSocket(2000);
+        server = new ServerSocket(2020);
         while (true) {
             Socket socket = server.accept();
             System.out.println("connected");

@@ -296,6 +296,9 @@ public class Main extends JFrame {
         } else {
             roomPage.getStartButton().setVisible(false);
             boardHandler();
+            roomPage.refreshBoard();
+            roomPage.repaint();
+            roomPage.revalidate();
         }
     }
 
@@ -340,9 +343,12 @@ public class Main extends JFrame {
                 } else {
                     // Refresh board panel
 //                    roomPage.removeAll();
-                    roomPage.refreshBoard();
-                    roomPage.repaint();
-                    roomPage.revalidate();
+                    // Kirim perintah update board lokal
+                    try {
+                        sendToServer("get-board");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 if (isGameFinish) {
@@ -563,7 +569,7 @@ public class Main extends JFrame {
                             // Player berhasil bergabung ke room sebagai spectator
                             characterSign = 6;
                             layers.remove(layers.getIndexOf(roleWindow));
-                            roomController();
+                            playersAutoRefresher();
                             invalidate();
                             validate();
                         } else if (Client2.command[0].equals("fail")) {
@@ -695,6 +701,7 @@ public class Main extends JFrame {
 
                     // Kirim perintah isi board ke server
                     sendToServer("update-board " + i + " " + j);
+                    System.out.println("aaaaaaaaaaaaaaaaaaaa");
                     if (Client2.command[0].equals("fail")) {
                         emptyWindow = new EmptyWindow("It is not your turn.");
                         backFromEmptyWindow(emptyWindow);
@@ -715,6 +722,8 @@ public class Main extends JFrame {
                             setContentPane(layers);
                             backFromOtherWinWindow(otherWinWindow);
                         }
+                    } else if (Client2.command[0].equals("turn")) {
+                        /// TODO ini apa
                     }
 
                     // Kirim perintah update board lokal
