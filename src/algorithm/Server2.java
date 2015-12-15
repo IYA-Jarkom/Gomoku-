@@ -201,7 +201,7 @@ public class Server2 {
                 if (listRoom.get(idRoom).turn().getNickName().equals(listPlayer.get(idPlayer).getNickName())) {
                     // Client boleh mengupdate board
                     position.setLocation(Integer.parseInt(command[1]), Integer.parseInt(command[2]));
-                    if (listRoom.get(idRoom).getBoard().getBoardElement(position) == -1) {
+                    if (listRoom.get(idRoom).isGameStart() && listRoom.get(idRoom).getBoard().getBoardElement(position) == -1) {
                         // Posisi board boleh diisi
                         // Mencari indeks client pada list player di room
                         String stringToClient;
@@ -238,6 +238,7 @@ public class Server2 {
                             } else {
                                 turnIndex++;
                             }
+                            listRoom.get(idRoom).setTurn(listRoom.get(idRoom).getPlayer(turnIndex));
 
                             // Mengirim data giliran pemain selanjutnya ke semua client di room
                             for (int i = 0; i < listClient.size(); i++) {
